@@ -5,6 +5,10 @@ const etch = require('etch')
 const SelectListView = require('../src/select-list-view')
 
 suite('SelectListView', () => {
+  afterEach(() => {
+    document.body.innerHTML = ""
+  })
+
   test('items rendering', async () => {
     const items = [{name: 'Grace', age: 20}, {name: 'John', age: 42}]
     const selectListView = new SelectListView({
