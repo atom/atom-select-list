@@ -1,0 +1,21 @@
+{
+  "name": "atom-select-list",
+  "version": "0.0.1",
+  "description": "A general-purpose select list for use in Atom packages",
+  "main": "./lib/select-list-view.js",
+  "scripts": {
+    "test": "electron-mocha --renderer test/**/*.test.js --ui=tdd --compilers js:babel-register",
+    "test-interactive": "electron-mocha --interactive test/**/*.test.js --ui=tdd --compilers js:babel-register"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "babel-plugin-transform-async-to-generator": "^6.16.0",
+    "babel-plugin-transform-react-jsx": "^6.8.0",
+    "babel-register": "^6.18.0",
+    "electron-mocha": "3.2.0"
+  },
+  "dependencies": {
+    "etch": "^0.8.0"
+  }
+}
