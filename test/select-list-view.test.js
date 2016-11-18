@@ -31,40 +31,53 @@ suite('SelectListView', () => {
     const items = [{name: 'Grace'}, {name: 'John'}, {name: 'Peter'}]
     const selectListView = new SelectListView({
       items,
-      viewForItem: (item) => <div>{item.name}</div>,
+      viewForItem: (item) => <div style={{height: '10px'}}>{item.name}</div>,
       didChangeSelection: (item) => { selectionChangeEvents.push(item) },
       didConfirmSelection: (item) => { selectionConfirmEvents.push(item) }
     })
+
+    selectListView.element.style.overflowY = 'auto'
+    selectListView.element.style.height = "20px"
     document.body.appendChild(selectListView.element)
+
     assert.equal(selectListView.getSelectedItem(), items[0])
     assert.equal(selectListView.element.querySelector('.selected').textContent, items[0].name)
+    assert.equal(selectListView.element.scrollTop, 0)
 
     await selectListView.selectNext()
     assert.equal(selectListView.getSelectedItem(), items[1])
     assert.equal(selectListView.element.querySelector('.selected').textContent, items[1].name)
+    assert.equal(selectListView.element.scrollTop, 0)
     await selectListView.selectNext()
     assert.equal(selectListView.getSelectedItem(), items[2])
     assert.equal(selectListView.element.querySelector('.selected').textContent, items[2].name)
+    assert.notEqual(selectListView.element.scrollTop, 0)
     await selectListView.selectNext()
     assert.equal(selectListView.getSelectedItem(), items[0])
     assert.equal(selectListView.element.querySelector('.selected').textContent, items[0].name)
+    assert.equal(selectListView.element.scrollTop, 0)
 
     await selectListView.selectPrevious()
     assert.equal(selectListView.getSelectedItem(), items[2])
     assert.equal(selectListView.element.querySelector('.selected').textContent, items[2].name)
+    assert.notEqual(selectListView.element.scrollTop, 0)
     await selectListView.selectPrevious()
     assert.equal(selectListView.getSelectedItem(), items[1])
     assert.equal(selectListView.element.querySelector('.selected').textContent, items[1].name)
+    assert.notEqual(selectListView.element.scrollTop, 0)
     await selectListView.selectPrevious()
     assert.equal(selectListView.getSelectedItem(), items[0])
     assert.equal(selectListView.element.querySelector('.selected').textContent, items[0].name)
+    assert.equal(selectListView.element.scrollTop, 0)
 
     await selectListView.selectLast()
     assert.equal(selectListView.getSelectedItem(), items[2])
     assert.equal(selectListView.element.querySelector('.selected').textContent, items[2].name)
+    assert.notEqual(selectListView.element.scrollTop, 0)
     await selectListView.selectFirst()
     assert.equal(selectListView.getSelectedItem(), items[0])
     assert.equal(selectListView.element.querySelector('.selected').textContent, items[0].name)
+    assert.equal(selectListView.element.scrollTop, 0)
 
     assert.deepEqual(selectionConfirmEvents, [])
     assert(selectListView.element.parentElement)

@@ -56,12 +56,11 @@ module.exports = class SelectListView {
     if (this.props.items.length > 0) {
       return (
         <ul ref='items'>
-        {this.props.items.map((item) => {
-          const className = item === this.getSelectedItem() ? 'selected' : ''
-          return (
-            <li className={className}>{this.props.viewForItem(item)}</li>
-          )
-        })}
+        {this.props.items.map((item) =>
+          <ListItemView
+            item={this.props.viewForItem(item)}
+            selected={this.getSelectedItem() === item} />
+        )}
         </ul>
       )
     } else {
@@ -114,5 +113,28 @@ module.exports = class SelectListView {
       this.props.didConfirmSelection(this.getSelectedItem())
     }
     return etch.destroy(this)
+  }
+}
+
+class ListItemView {
+  constructor (props) {
+    this.props = props
+    etch.initialize(this)
+  }
+
+  update (props) {
+    this.props = props
+    return etch.update(this)
+  }
+
+  render () {
+    const className = this.props.selected ? 'selected' : ''
+    return <li className={className}>{this.props.item}</li>
+  }
+
+  writeAfterUpdate () {
+    if (this.props.selected) {
+      this.element.scrollIntoViewIfNeeded()
+    }
   }
 }
