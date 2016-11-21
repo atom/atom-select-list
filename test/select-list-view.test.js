@@ -218,6 +218,4 @@ describe('SelectListView', () => {
     await selectListView.update({infoMessage: null})
     assert(!selectListView.refs.infoMessage)
   })
-
-  it('destroy')
 })
