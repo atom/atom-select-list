@@ -22,7 +22,7 @@ module.exports = class SelectListView {
 
   destroy () {
     this.disposables.dispose()
-    etch.destroy(this)
+    return etch.destroy(this)
   }
 
   registerAtomCommands () {

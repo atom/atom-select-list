@@ -19,7 +19,11 @@ describe('SelectListView', () => {
     await selectListView.update({items})
     assert.equal(selectListView.refs.items.innerText, 'Grace 20\nJohn 42\nPeter 50')
 
-    await etch.destroy(selectListView)
+    await selectListView.destroy()
+  })
+
+  it('focus', async () => {
+
   })
 
   it('keyboard navigation and selection', async () => {
@@ -83,6 +87,7 @@ describe('SelectListView', () => {
     assert(!selectListView.element.parentElement)
 
     assert.deepEqual(selectionChangeEvents, [items[0], items[1], items[2], items[0], items[2], items[1], items[0], items[2], items[0]])
+    await selectListView.destroy()
   })
 
   it('default filtering', async () => {
@@ -101,6 +106,7 @@ describe('SelectListView', () => {
     await etch.getScheduler().getNextUpdatePromise()
     assert.equal(selectListView.refs.items.innerText, 'Joanna\nJohnathan')
     assert.equal(selectListView.getSelectedItem(), items[2])
+    await selectListView.destroy()
   })
 
   it('custom filtering', async () => {
@@ -126,6 +132,7 @@ describe('SelectListView', () => {
     await etch.getScheduler().getNextUpdatePromise()
     assert.equal(selectListView.refs.items.innerText, 'Johnathan')
     assert.equal(selectListView.getSelectedItem(), items[1])
+    await selectListView.destroy()
   })
 
   it('query changes', async () => {
