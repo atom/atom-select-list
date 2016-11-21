@@ -153,9 +153,31 @@ describe('SelectListView', () => {
     assert(!selectListView.refs.emptyMessage)
   })
 
-  it('error message')
-  it('info message')
+  it('error message', async () => {
+    const selectListView = new SelectListView({
+      errorMessage: 'error message',
+      items: [],
+      viewForItem: (i) => i.toString()
+    })
+    assert.equal(selectListView.refs.errorMessage.textContent, 'error message')
+    await selectListView.update({items: [1, 2, 3]})
+    assert.equal(selectListView.refs.errorMessage.textContent, 'error message')
+    await selectListView.update({errorMessage: null})
+    assert(!selectListView.refs.errorMessage)
+  })
 
-  it('focus')
+  it('info message', async () => {
+    const selectListView = new SelectListView({
+      infoMessage: 'info message',
+      items: [],
+      viewForItem: (i) => i.toString()
+    })
+    assert.equal(selectListView.refs.infoMessage.textContent, 'info message')
+    await selectListView.update({items: [1, 2, 3]})
+    assert.equal(selectListView.refs.infoMessage.textContent, 'info message')
+    await selectListView.update({infoMessage: null})
+    assert(!selectListView.refs.infoMessage)
+  })
+
   it('destroy')
 })

@@ -55,8 +55,36 @@ module.exports = class SelectListView {
   }
 
   update (props = {}) {
-    if (props.items) {
+    let shouldComputeItems = false
+
+    if (props.hasOwnProperty('items')) {
       this.props.items = props.items
+      shouldComputeItems = true
+    }
+
+    if (props.hasOwnProperty('maxResults')) {
+      this.props.maxResults = props.maxResults
+      shouldComputeItems = true
+    }
+
+    if (props.hasOwnProperty('filter')) {
+      this.props.filter = props.filter
+      shouldComputeItems = true
+    }
+
+    if (props.hasOwnProperty('emptyMessage')) {
+      this.props.emptyMessage = props.emptyMessage
+    }
+
+    if (props.hasOwnProperty('errorMessage')) {
+      this.props.errorMessage = props.errorMessage
+    }
+
+    if (props.hasOwnProperty('infoMessage')) {
+      this.props.infoMessage = props.infoMessage
+    }
+
+    if (shouldComputeItems) {
       this.computeItems()
     }
 
@@ -67,6 +95,8 @@ module.exports = class SelectListView {
     return (
       <div>
         <TextEditor ref='queryEditor' mini={true} />
+        {this.renderInfoMessage()}
+        {this.renderErrorMessage()}
         <ul ref='items'>{this.renderItems()}</ul>
       </div>
     )
@@ -85,6 +115,22 @@ module.exports = class SelectListView {
           <span ref="emptyMessage">{this.props.emptyMessage}</span>
         </div>
       )
+    }
+  }
+
+  renderErrorMessage () {
+    if (this.props.errorMessage) {
+      return <span ref="errorMessage">{this.props.errorMessage}</span>
+    } else {
+      return ''
+    }
+  }
+
+  renderInfoMessage () {
+    if (this.props.infoMessage) {
+      return <span ref="infoMessage">{this.props.infoMessage}</span>
+    } else {
+      return ''
     }
   }
 
