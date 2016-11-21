@@ -12,12 +12,8 @@ module.exports = class SelectListView {
     this.props = props
     this.computeItems()
     this.disposables = new CompositeDisposable()
-    this.editorDisposables = new CompositeDisposable()
     etch.initialize(this)
-    this.queryEditor = this.refs.queryEditor
-    if (this.queryEditor) {
-      this.editorDisposables.add(this.queryEditor.onDidChange(this.didChangeQuery.bind(this)))
-    }
+    this.disposables.add(this.refs.queryEditor.onDidChange(this.didChangeQuery.bind(this)))
     this.disposables.add(this.registerAtomCommands())
     if (this.props.didChangeSelection) {
       this.props.didChangeSelection(this.getSelectedItem())
@@ -26,7 +22,6 @@ module.exports = class SelectListView {
 
   destroy () {
     this.disposables.dispose()
-    this.editorDisposables.dispose()
     etch.destroy(this)
   }
 
@@ -59,35 +54,30 @@ module.exports = class SelectListView {
     })
   }
 
-  async update (props = {}) {
+  update (props = {}) {
     if (props.items) {
       this.props.items = props.items
       this.computeItems()
     }
 
-    await etch.update(this)
-
-    if (this.refs.queryEditor && !this.queryEditor) {
-      this.queryEditor = this.refs.queryEditor
-      this.editorDisposables.add(this.queryEditor.onDidChange(this.didChangeQuery.bind(this)))
-    } else if (!this.refs.queryEditor && this.queryEditor) {
-      this.queryEditor = null
-      this.editorDisposables.dispose()
-      this.editorDisposables = new CompositeDisposable()
-    }
+    return etch.update(this)
   }
 
   render () {
+    return (
+      <div>
+        <TextEditor ref='queryEditor' mini={true} />
+        <ul ref='items'>{this.renderItems()}</ul>
+      </div>  
+    )
+  }
+
+  renderItems () {
     if (this.items.length > 0) {
-      return (
-        <div>
-          <TextEditor ref='queryEditor' mini={true} />
-          <ul ref='items'>{this.items.map((item) =>
-            <ListItemView
-              item={this.props.viewForItem(item)}
-              selected={this.getSelectedItem() === item} />
-          )}</ul>
-        </div>
+      return this.items.map((item) =>
+        <ListItemView
+          item={this.props.viewForItem(item)}
+          selected={this.getSelectedItem() === item} />
       )
     } else {
       return (
