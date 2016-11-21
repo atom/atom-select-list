@@ -1,23 +1,37 @@
 /** @babel */
 /** @jsx etch.dom */
 
+const {CompositeDisposable, TextEditor} = require('atom')
 const etch = require('etch')
+const fuzzaldrin = require('fuzzaldrin')
+const path = require('path')
 
 module.exports = class SelectListView {
   constructor (props) {
     this.selectionIndex = 0
     this.props = props
+    this.computeItems()
+    this.disposables = new CompositeDisposable()
+    this.editorDisposables = new CompositeDisposable()
+    etch.initialize(this)
+    this.queryEditor = this.refs.queryEditor
+    if (this.queryEditor) {
+      this.editorDisposables.add(this.queryEditor.onDidChange(this.didChangeQuery.bind(this)))
+    }
+    this.disposables.add(this.registerAtomCommands())
     if (this.props.didChangeSelection) {
       this.props.didChangeSelection(this.getSelectedItem())
     }
-    etch.initialize(this)
-    if (global.atom) {
-      this.registerAtomCommands()
-    }
+  }
+
+  destroy () {
+    this.disposables.dispose()
+    this.editorDisposables.dispose()
+    etch.destroy(this)
   }
 
   registerAtomCommands () {
-    global.atom.commands.add(this.element, {
+    return global.atom.commands.add(this.element, {
       'core:move-up': (event) => {
         this.selectPrevious()
         event.stopPropagation()
@@ -45,24 +59,35 @@ module.exports = class SelectListView {
     })
   }
 
-  update (props = {}) {
+  async update (props = {}) {
     if (props.items) {
       this.props.items = props.items
+      this.computeItems()
     }
 
-    return etch.update(this)
+    await etch.update(this)
+
+    if (this.refs.queryEditor && !this.queryEditor) {
+      this.queryEditor = this.refs.queryEditor
+      this.editorDisposables.add(this.queryEditor.onDidChange(this.didChangeQuery.bind(this)))
+    } else if (!this.refs.queryEditor && this.queryEditor) {
+      this.queryEditor = null
+      this.editorDisposables.dispose()
+      this.editorDisposables = new CompositeDisposable()
+    }
   }
 
   render () {
-    if (this.props.items.length > 0) {
+    if (this.items.length > 0) {
       return (
-        <ul ref='items'>
-        {this.props.items.map((item) =>
-          <ListItemView
-            item={this.props.viewForItem(item)}
-            selected={this.getSelectedItem() === item} />
-        )}
-        </ul>
+        <div>
+          <TextEditor ref='queryEditor' mini={true} />
+          <ul ref='items'>{this.items.map((item) =>
+            <ListItemView
+              item={this.props.viewForItem(item)}
+              selected={this.getSelectedItem() === item} />
+          )}</ul>
+        </div>
       )
     } else {
       return (
@@ -73,12 +98,48 @@ module.exports = class SelectListView {
     }
   }
 
+  getQuery () {
+    if (this.refs && this.refs.queryEditor) {
+      return this.refs.queryEditor.getText()
+    } else {
+      return ""
+    }
+  }
+
+  didChangeQuery () {
+    this.computeItems()
+    this.selectionIndex = 0
+    etch.update(this)
+  }
+
+  computeItems () {
+    const filterFn = this.props.filter || this.fuzzyFilter.bind(this)
+    this.items = filterFn(this.props.items, this.getQuery()).slice(0, this.props.maxResults || Infinity)
+  }
+
+  fuzzyFilter (items, query) {
+    if (query.length === 0) {
+      return items
+    } else {
+      const scoredItems = []
+      for (const item of items) {
+        const string = this.props.filterKeyForItem ? this.props.filterKeyForItem(item) : item
+        let score = fuzzaldrin.score(string, query)
+        if (score > 0) {
+          scoredItems.push({item, score})
+        }
+      }
+      scoredItems.sort((a, b) => b.score - a.score)
+      return scoredItems.map((i) => i.item)
+    }
+  }
+
   getSelectedItem () {
-    return this.props.items[this.selectionIndex]
+    return this.items[this.selectionIndex]
   }
 
   selectPrevious () {
-    this.selectionIndex = this.selectionIndex === 0 ? this.props.items.length - 1 : this.selectionIndex - 1
+    this.selectionIndex = this.selectionIndex === 0 ? this.items.length - 1 : this.selectionIndex - 1
     if (this.props.didChangeSelection) {
       this.props.didChangeSelection(this.getSelectedItem())
     }
@@ -86,7 +147,7 @@ module.exports = class SelectListView {
   }
 
   selectNext () {
-    this.selectionIndex = this.selectionIndex === this.props.items.length - 1 ? 0 : this.selectionIndex + 1
+    this.selectionIndex = this.selectionIndex === this.items.length - 1 ? 0 : this.selectionIndex + 1
     if (this.props.didChangeSelection) {
       this.props.didChangeSelection(this.getSelectedItem())
     }
@@ -102,7 +163,7 @@ module.exports = class SelectListView {
   }
 
   selectLast () {
-    this.selectionIndex = this.props.items.length - 1
+    this.selectionIndex = this.items.length - 1
     if (this.props.didChangeSelection) {
       this.props.didChangeSelection(this.getSelectedItem())
     }
