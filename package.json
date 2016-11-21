@@ -4,8 +4,7 @@
   "description": "A general-purpose select list for use in Atom packages",
   "main": "./lib/select-list-view.js",
   "scripts": {
-    "test": "electron-mocha --renderer test/**/*.test.js --ui=tdd --compilers js:babel-register",
-    "test-interactive": "electron-mocha --interactive test/**/*.test.js --ui=tdd --compilers js:babel-register"
+    "test": "atom --test test"
   },
   "author": "",
   "license": "MIT",
