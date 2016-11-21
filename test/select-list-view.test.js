@@ -128,6 +128,20 @@ describe('SelectListView', () => {
     assert.equal(selectListView.getSelectedItem(), items[1])
   })
 
+  it('query changes', async () => {
+    const queryChangeEvents = []
+    const selectListView = new SelectListView({
+      didChangeQuery: (query) => queryChangeEvents.push(query),
+      items: [],
+      viewForItem: (i) => i.toString()
+    })
+    assert.deepEqual(queryChangeEvents, [])
+    selectListView.refs.queryEditor.setText('abc')
+    assert.deepEqual(queryChangeEvents, ['abc'])
+    selectListView.refs.queryEditor.setText('')
+    assert.deepEqual(queryChangeEvents, ['abc', ''])
+  })
+
   it('empty message', async () => {
     const selectListView = new SelectListView({
       emptyMessage: 'empty message',
@@ -142,7 +156,6 @@ describe('SelectListView', () => {
   it('error message')
   it('info message')
 
-  it('query changes')
   it('focus')
   it('destroy')
 })

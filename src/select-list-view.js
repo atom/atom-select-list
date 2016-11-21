@@ -68,7 +68,7 @@ module.exports = class SelectListView {
       <div>
         <TextEditor ref='queryEditor' mini={true} />
         <ul ref='items'>{this.renderItems()}</ul>
-      </div>  
+      </div>
     )
   }
 
@@ -97,6 +97,10 @@ module.exports = class SelectListView {
   }
 
   didChangeQuery () {
+    if (this.props.didChangeQuery) {
+      this.props.didChangeQuery(this.getQuery())
+    }
+
     this.computeItems()
     this.selectionIndex = 0
     etch.update(this)
