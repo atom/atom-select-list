@@ -1,3 +1,4 @@
+/** @babel */
 /** @jsx etch.dom */
 
 const etch = require('etch')

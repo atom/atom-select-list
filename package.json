@@ -9,11 +9,9 @@
   },
   "author": "",
   "license": "MIT",
+  "atomTestRunner": "atom-mocha-test-runner",
   "devDependencies": {
-    "babel-plugin-transform-async-to-generator": "^6.16.0",
-    "babel-plugin-transform-react-jsx": "^6.8.0",
-    "babel-register": "^6.18.0",
-    "electron-mocha": "3.2.0"
+    "atom-mocha-test-runner": "^0.3.0"
   },
   "dependencies": {
     "etch": "^0.8.0"
