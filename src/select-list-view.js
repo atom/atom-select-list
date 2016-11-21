@@ -8,16 +8,13 @@ const path = require('path')
 
 module.exports = class SelectListView {
   constructor (props) {
-    this.selectionIndex = 0
     this.props = props
     this.computeItems()
+    this.selectIndex(0)
     this.disposables = new CompositeDisposable()
     etch.initialize(this)
     this.disposables.add(this.refs.queryEditor.onDidChange(this.didChangeQuery.bind(this)))
     this.disposables.add(this.registerAtomCommands())
-    if (this.props.didChangeSelection) {
-      this.props.didChangeSelection(this.getSelectedItem())
-    }
   }
 
   focus () {
@@ -114,10 +111,11 @@ module.exports = class SelectListView {
 
   renderItems () {
     if (this.items.length > 0) {
-      return this.items.map((item) =>
+      return this.items.map((item, index) =>
         <ListItemView
           item={this.props.viewForItem(item)}
-          selected={this.getSelectedItem() === item} />
+          selected={this.getSelectedItem() === item}
+          onclick={() => this.didClickItem(index)} />
       )
     } else {
       return (
@@ -158,8 +156,13 @@ module.exports = class SelectListView {
     }
 
     this.computeItems()
-    this.selectionIndex = 0
+    this.selectIndex(0)
     etch.update(this)
+  }
+
+  didClickItem (itemIndex) {
+    this.selectIndex(itemIndex)
+    this.confirmSelection()
   }
 
   computeItems () {
@@ -189,35 +192,36 @@ module.exports = class SelectListView {
   }
 
   selectPrevious () {
-    this.selectionIndex = this.selectionIndex === 0 ? this.items.length - 1 : this.selectionIndex - 1
-    if (this.props.didChangeSelection) {
-      this.props.didChangeSelection(this.getSelectedItem())
-    }
-    return this.update()
+    this.selectIndex(this.selectionIndex - 1)
+    return etch.update(this)
   }
 
   selectNext () {
-    this.selectionIndex = this.selectionIndex === this.items.length - 1 ? 0 : this.selectionIndex + 1
-    if (this.props.didChangeSelection) {
-      this.props.didChangeSelection(this.getSelectedItem())
-    }
-    return this.update()
+    this.selectIndex(this.selectionIndex + 1)
+    return etch.update(this)
   }
 
   selectFirst () {
-    this.selectionIndex = 0
-    if (this.props.didChangeSelection) {
-      this.props.didChangeSelection(this.getSelectedItem())
-    }
-    return this.update()
+    this.selectIndex(0)
+    return etch.update(this)
   }
 
   selectLast () {
-    this.selectionIndex = this.items.length - 1
+    this.selectIndex(this.items.length - 1)
+    return etch.update(this)
+  }
+
+  selectIndex (index) {
+    if (index === this.items.length) {
+      index = 0
+    } else if (index === -1) {
+      index = this.items.length - 1
+    }
+
+    this.selectionIndex = index
     if (this.props.didChangeSelection) {
       this.props.didChangeSelection(this.getSelectedItem())
     }
-    return etch.update(this)
   }
 
   confirmSelection () {
@@ -241,7 +245,7 @@ class ListItemView {
 
   render () {
     const className = this.props.selected ? 'selected' : ''
-    return <li className={className}>{this.props.item}</li>
+    return <li className={className} onclick={this.props.onclick}>{this.props.item}</li>
   }
 
   writeAfterUpdate () {

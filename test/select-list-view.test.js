@@ -103,6 +103,26 @@ describe('SelectListView', () => {
     await selectListView.destroy()
   })
 
+  it('mouse selection', async () => {
+    const selectionConfirmEvents = []
+    const selectionChangeEvents = []
+    const items = [{name: 'Grace'}, {name: 'John'}, {name: 'Peter'}]
+    const selectListView = new SelectListView({
+      items,
+      viewForItem: (item) => <div className="item">{item.name}</div>,
+      didChangeSelection: (item) => { selectionChangeEvents.push(item) },
+      didConfirmSelection: (item) => { selectionConfirmEvents.push(item) }
+    })
+    assert.deepEqual(selectionConfirmEvents, [])
+    assert.deepEqual(selectionChangeEvents, [items[0]])
+
+    selectListView.element.querySelectorAll('.item')[1].click()
+    assert.deepEqual(selectionConfirmEvents, [items[1]])
+    assert.deepEqual(selectionChangeEvents, [items[0], items[1]])
+    await etch.getScheduler().getNextUpdatePromise()
+    assert(!selectListView.element.parentElement)
+  })
+
   it('default filtering', async () => {
     const items = [{name: 'Grace'}, {name: 'Johnathan'}, {name: 'Joanna'}]
     const selectListView = new SelectListView({
