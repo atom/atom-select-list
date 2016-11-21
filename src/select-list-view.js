@@ -20,7 +20,17 @@ module.exports = class SelectListView {
     }
   }
 
+  focus () {
+    this.previouslyFocusedElement = document.activeElement
+    this.refs.queryEditor.element.focus()
+  }
+
   destroy () {
+    if (this.previouslyFocusedElement) {
+      this.previouslyFocusedElement.focus()
+      this.previouslyFocusedElement = null
+    }
+
     this.disposables.dispose()
     return etch.destroy(this)
   }

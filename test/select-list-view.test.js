@@ -23,7 +23,20 @@ describe('SelectListView', () => {
   })
 
   it('focus', async () => {
+    const items = [{name: 'Grace', age: 20}, {name: 'John', age: 42}]
+    const selectListView = new SelectListView({
+      items,
+      viewForItem: (item) => item.toString()
+    })
+    const previouslyFocusedElement = document.createElement('input')
+    document.body.appendChild(previouslyFocusedElement)
+    previouslyFocusedElement.focus()
 
+    document.body.appendChild(selectListView.element)
+    selectListView.focus()
+    assert.equal(document.activeElement.closest('atom-text-editor'), selectListView.refs.queryEditor.element)
+    await selectListView.destroy()
+    assert.equal(document.activeElement, previouslyFocusedElement)
   })
 
   it('keyboard navigation and selection', async () => {
