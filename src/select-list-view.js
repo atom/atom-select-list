@@ -122,7 +122,6 @@ module.exports = class SelectListView {
         {this.renderInfoMessage()}
         {this.renderErrorMessage()}
         {this.renderItems()}
-
       </div>
     )
   }
@@ -135,7 +134,7 @@ module.exports = class SelectListView {
           <ListItemView
             element={this.props.elementForItem(item)}
             selected={this.getSelectedItem() === item}
-            onclick={(event) => this.didClickItem(event, index)} />)}
+            onclick={() => this.didClickItem(index)} />)}
         </ol>
       )
 
@@ -180,8 +179,7 @@ module.exports = class SelectListView {
     etch.update(this)
   }
 
-  didClickItem (event, itemIndex) {
-    event.preventDefault()
+  didClickItem (itemIndex) {
     this.selectIndex(itemIndex)
     this.confirmSelection()
   }
@@ -260,32 +258,64 @@ module.exports = class SelectListView {
 
 class ListItemView {
   constructor (props) {
+    this.mouseDown = this.mouseDown.bind(this)
+    this.mouseUp = this.mouseUp.bind(this)
+    this.didClick = this.didClick.bind(this)
     this.selected = props.selected
-    this.element = document.createElement('li')
-    this.element.onmousedown = function (e) { e.preventDefault() }
-    this.element.onmouseup = function (e) { e.preventDefault() }
-    this.element.onclick = props.onclick
+    this.onclick = props.onclick
+    this.element = props.element
+    this.element.addEventListener('mousedown', this.mouseDown)
+    this.element.addEventListener('mouseup', this.mouseUp)
+    this.element.addEventListener('click', this.didClick)
     if (this.selected) {
       this.element.classList.add('selected')
     }
-    this.element.appendChild(props.element)
+    this.domEventsDisposable = new Disposable(() => {
+      this.element.removeEventListener('mousedown', this.mouseDown)
+      this.element.removeEventListener('mouseup', this.mouseUp)
+      this.element.removeEventListener('click', this.didClick)
+    })
     etch.getScheduler().updateDocument(this.scrollIntoViewIfNeeded.bind(this))
   }
 
-  update (props) {
-    if (this.element.childNodes[0] !== props.element) {
-      this.element.childNodes[0].remove()
-      this.element.appendChild(props.element)
-    }
+  mouseDown (event) {
+    event.preventDefault()
+  }
 
-    if (this.selected && !props.selected) {
+  mouseUp () {
+    event.preventDefault()
+  }
+
+  didClick (event) {
+    event.preventDefault()
+    this.onclick()
+  }
+
+  destroy () {
+    if (this.selected) {
       this.element.classList.remove('selected')
-    } else if (!this.selected && props.selected) {
-      this.element.classList.add('selected')
+    }
+    this.domEventsDisposable.dispose()
+  }
+
+  update (props) {
+    if (this.element !== props.element) {
+      this.element.removeEventListener('click', this.didClick)
+      props.element.addEventListener('click', this.didClick)
+      if (props.selected) {
+        props.element.classList.add('selected')
+      }
+    } else {
+      if (this.selected && !props.selected) {
+        this.element.classList.remove('selected')
+      } else if (!this.selected && props.selected) {
+        this.element.classList.add('selected')
+      }
     }
 
+    this.element = props.element
     this.selected = props.selected
-    this.element.onclick = props.onclick
+    this.onclick = props.onclick
     etch.getScheduler().updateDocument(this.scrollIntoViewIfNeeded.bind(this))
   }
 

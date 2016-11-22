@@ -17,17 +17,17 @@ describe('SelectListView', () => {
   })
 
   it('items rendering', async () => {
-    const items = [{name: 'Grace'}, {name: 'John'}]
+    const items = [{name: 'Grace'}, {name: 'John'}, {name: 'Peter'}]
     const selectListView = new SelectListView({
       items,
       elementForItem: (item) => createElementForItem(item)
     })
     containerNode.appendChild(selectListView.element)
-    assert.equal(selectListView.refs.items.innerText, 'Grace\nJohn')
-
-    items.push({name: 'Peter'})
-    await selectListView.update({items})
     assert.equal(selectListView.refs.items.innerText, 'Grace\nJohn\nPeter')
+
+    items.reverse()
+    await selectListView.update({items})
+    assert.equal(selectListView.refs.items.innerText, 'Peter\nJohn\nGrace')
 
     await selectListView.destroy()
     assert(!selectListView.element.parentElement)
@@ -207,7 +207,7 @@ describe('SelectListView', () => {
     const selectListView = new SelectListView({
       didChangeQuery: (query) => queryChangeEvents.push(query),
       items: [],
-      elementForItem: (i) => document.createElement('div')
+      elementForItem: (i) => document.createElement('li')
     })
     assert.deepEqual(queryChangeEvents, [])
     selectListView.refs.queryEditor.setText('abc')
@@ -220,7 +220,7 @@ describe('SelectListView', () => {
     const selectListView = new SelectListView({
       emptyMessage: 'empty message',
       items: [],
-      elementForItem: (i) => document.createElement('div')
+      elementForItem: (i) => document.createElement('li')
     })
     assert.equal(selectListView.refs.emptyMessage.textContent, 'empty message')
     await selectListView.update({items: [1, 2, 3]})
@@ -231,7 +231,7 @@ describe('SelectListView', () => {
     const selectListView = new SelectListView({
       errorMessage: 'error message',
       items: [],
-      elementForItem: (i) => document.createElement('div')
+      elementForItem: (i) => document.createElement('li')
     })
     assert.equal(selectListView.refs.errorMessage.textContent, 'error message')
     await selectListView.update({items: [1, 2, 3]})
@@ -244,7 +244,7 @@ describe('SelectListView', () => {
     const selectListView = new SelectListView({
       infoMessage: 'info message',
       items: [],
-      elementForItem: (i) => document.createElement('div')
+      elementForItem: (i) => document.createElement('li')
     })
     assert.equal(selectListView.refs.infoMessage.textContent, 'info message')
     await selectListView.update({items: [1, 2, 3]})
@@ -255,7 +255,7 @@ describe('SelectListView', () => {
 })
 
 function createElementForItem (item) {
-  const element = document.createElement('div')
+  const element = document.createElement('li')
   element.style.height = '10px'
   element.className = 'item'
   element.textContent = item.name
