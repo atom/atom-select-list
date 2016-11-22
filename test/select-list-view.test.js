@@ -1,5 +1,4 @@
 /** @babel */
-/** @jsx etch.dom */
 
 const assert = require('assert')
 const etch = require('etch')
@@ -10,9 +9,6 @@ describe('SelectListView', () => {
 
   beforeEach(() => {
     containerNode = document.createElement('div')
-    containerNode.style.position = 'absolute'
-    containerNode.style.left = 0
-    containerNode.style.top = 0
     document.body.appendChild(containerNode)
   })
 

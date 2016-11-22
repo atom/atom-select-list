@@ -2,7 +2,7 @@
   "name": "atom-select-list",
   "version": "0.0.1",
   "description": "A general-purpose select list for use in Atom packages",
-  "main": "./lib/select-list-view.js",
+  "main": "./src/select-list-view.js",
   "scripts": {
     "test": "atom --test test"
   },
