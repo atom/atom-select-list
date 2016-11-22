@@ -1,7 +1,7 @@
 /** @babel */
 /** @jsx etch.dom */
 
-const {CompositeDisposable, TextEditor} = require('atom')
+const {Disposable, CompositeDisposable, TextEditor} = require('atom')
 const etch = require('etch')
 const fuzzaldrin = require('fuzzaldrin')
 const path = require('path')
@@ -15,6 +15,10 @@ module.exports = class SelectListView {
     etch.initialize(this)
     this.disposables.add(this.refs.queryEditor.onDidChange(this.didChangeQuery.bind(this)))
     this.disposables.add(this.registerAtomCommands())
+    const editorInputNode = this.refs.queryEditor.element.component.hiddenInputComponent.getDomNode()
+    const didLoseFocus = this.didLoseFocus.bind(this)
+    editorInputNode.addEventListener('blur', didLoseFocus)
+    this.disposables.add(new Disposable(() => { editorInputNode.removeEventListener('blur', didLoseFocus) }))
   }
 
   focus () {
@@ -22,12 +26,24 @@ module.exports = class SelectListView {
     this.refs.queryEditor.element.focus()
   }
 
-  destroy () {
-    if (this.previouslyFocusedElement) {
-      this.previouslyFocusedElement.focus()
-      this.previouslyFocusedElement = null
-    }
+  restoreFocus () {
+    this.previouslyFocusedElement.focus()
+    this.previouslyFocusedElement = null
+  }
 
+  didLoseFocus (event) {
+    if (this.element.contains(event.relatedTarget)) {
+      this.refs.queryEditor.element.focus()
+    } else {
+      this.cancelSelection()
+    }
+  }
+
+  reset () {
+    this.refs.queryEditor.setText('')
+  }
+
+  destroy () {
     this.disposables.dispose()
     return etch.destroy(this)
   }
@@ -55,7 +71,7 @@ module.exports = class SelectListView {
         event.stopPropagation()
       },
       'core:cancel': (event) => {
-        etch.destroy(this)
+        this.cancelSelection()
         event.stopPropagation()
       }
     })
@@ -115,7 +131,7 @@ module.exports = class SelectListView {
         <ListItemView
           element={this.props.elementForItem(item)}
           selected={this.getSelectedItem() === item}
-          onclick={() => this.didClickItem(index)} />
+          onclick={(event) => this.didClickItem(event, index)} />
       )
     } else {
       return (
@@ -160,7 +176,8 @@ module.exports = class SelectListView {
     etch.update(this)
   }
 
-  didClickItem (itemIndex) {
+  didClickItem (event, itemIndex) {
+    event.preventDefault()
     this.selectIndex(itemIndex)
     this.confirmSelection()
   }
@@ -228,7 +245,12 @@ module.exports = class SelectListView {
     if (this.props.didConfirmSelection) {
       this.props.didConfirmSelection(this.getSelectedItem())
     }
-    return etch.destroy(this)
+  }
+
+  cancelSelection () {
+    if (this.props.didCancelSelection) {
+      this.props.didCancelSelection()
+    }
   }
 }
 
@@ -236,6 +258,8 @@ class ListItemView {
   constructor (props) {
     this.selected = props.selected
     this.element = document.createElement('li')
+    this.element.onmousedown = function (e) { e.preventDefault() }
+    this.element.onmouseup = function (e) { e.preventDefault() }
     this.element.onclick = props.onclick
     if (this.selected) {
       this.element.classList.add('selected')

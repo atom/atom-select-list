@@ -34,9 +34,11 @@ describe('SelectListView', () => {
   })
 
   it('focus', async () => {
+    let cancelSelectionEventsCount = 0
     const selectListView = new SelectListView({
       items: [1, 2, 3],
-      elementForItem: (item) => document.createElement('div')
+      elementForItem: (item) => document.createElement('input'),
+      didCancelSelection: () => { cancelSelectionEventsCount++ }
     })
     const previouslyFocusedElement = document.createElement('input')
     containerNode.appendChild(previouslyFocusedElement)
@@ -45,7 +47,21 @@ describe('SelectListView', () => {
     containerNode.appendChild(selectListView.element)
     selectListView.focus()
     assert.equal(document.activeElement.closest('atom-text-editor'), selectListView.refs.queryEditor.element)
-    await selectListView.destroy()
+    assert.equal(cancelSelectionEventsCount, 0)
+
+    previouslyFocusedElement.focus()
+    assert.equal(document.activeElement, previouslyFocusedElement)
+    assert.equal(cancelSelectionEventsCount, 1)
+
+    selectListView.focus()
+    assert.equal(document.activeElement.closest('atom-text-editor'), selectListView.refs.queryEditor.element)
+    assert.equal(cancelSelectionEventsCount, 1)
+
+    selectListView.refs.items.querySelector('input').focus()
+    assert.equal(document.activeElement.closest('atom-text-editor'), selectListView.refs.queryEditor.element)
+    assert.equal(cancelSelectionEventsCount, 1)
+
+    await selectListView.restoreFocus()
     assert.equal(document.activeElement, previouslyFocusedElement)
   })
 
@@ -122,8 +138,6 @@ describe('SelectListView', () => {
     assert(selectListView.element.parentElement)
     await selectListView.confirmSelection()
     assert.deepEqual(selectionConfirmEvents, [items[0]])
-    assert(!selectListView.element.parentElement)
-
     assert.deepEqual(selectionChangeEvents, [items[0], items[1], items[2], items[0], items[2], items[1], items[0], items[2], items[0]])
   })
 
@@ -143,8 +157,6 @@ describe('SelectListView', () => {
     selectListView.element.querySelectorAll('.item')[1].click()
     assert.deepEqual(selectionConfirmEvents, [items[1]])
     assert.deepEqual(selectionChangeEvents, [items[0], items[1]])
-    await etch.getScheduler().getNextUpdatePromise()
-    assert(!selectListView.element.parentElement)
   })
 
   it('default filtering', async () => {
