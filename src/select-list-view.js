@@ -300,8 +300,14 @@ class ListItemView {
 
   update (props) {
     if (this.element !== props.element) {
+      this.element.removeEventListener('mousedown', this.mouseDown)
+      props.element.addEventListener('mousedown', this.mouseDown)
+      this.element.removeEventListener('mouseup', this.mouseUp)
+      props.element.addEventListener('mouseup', this.mouseUp)
       this.element.removeEventListener('click', this.didClick)
       props.element.addEventListener('click', this.didClick)
+
+      props.element.classList.remove('selected')
       if (props.selected) {
         props.element.classList.add('selected')
       }
