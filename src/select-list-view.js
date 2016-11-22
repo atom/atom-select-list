@@ -273,8 +273,8 @@ class ListItemView {
   }
 
   update (props) {
-    if (this.element.children[0] !== props.element) {
-      this.element.children[0].remove()
+    if (this.element.childNodes[0] !== props.element) {
+      this.element.childNodes[0].remove()
       this.element.appendChild(props.element)
     }
 
