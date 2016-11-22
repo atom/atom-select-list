@@ -113,7 +113,7 @@ module.exports = class SelectListView {
     if (this.items.length > 0) {
       return this.items.map((item, index) =>
         <ListItemView
-          item={this.props.viewForItem(item)}
+          element={this.props.elementForItem(item)}
           selected={this.getSelectedItem() === item}
           onclick={() => this.didClickItem(index)} />
       )
@@ -234,22 +234,35 @@ module.exports = class SelectListView {
 
 class ListItemView {
   constructor (props) {
-    this.props = props
-    etch.initialize(this)
+    this.selected = props.selected
+    this.element = document.createElement('li')
+    this.element.onclick = props.onclick
+    if (this.selected) {
+      this.element.classList.add('selected')
+    }
+    this.element.appendChild(props.element)
+    etch.getScheduler().updateDocument(this.scrollIntoViewIfNeeded.bind(this))
   }
 
   update (props) {
-    this.props = props
-    return etch.update(this)
+    if (this.element.children[0] !== props.element) {
+      this.element.children[0].remove()
+      this.element.appendChild(props.element)
+    }
+
+    if (this.selected && !props.selected) {
+      this.element.classList.remove('selected')
+    } else if (!this.selected && props.selected) {
+      this.element.classList.add('selected')
+    }
+
+    this.selected = props.selected
+    this.element.onclick = props.onclick
+    etch.getScheduler().updateDocument(this.scrollIntoViewIfNeeded.bind(this))
   }
 
-  render () {
-    const className = this.props.selected ? 'selected' : ''
-    return <li className={className} onclick={this.props.onclick}>{this.props.item}</li>
-  }
-
-  writeAfterUpdate () {
-    if (this.props.selected) {
+  scrollIntoViewIfNeeded () {
+    if (this.selected) {
       this.element.scrollIntoViewIfNeeded()
     }
   }

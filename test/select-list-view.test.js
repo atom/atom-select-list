@@ -6,33 +6,47 @@ const etch = require('etch')
 const SelectListView = require('../src/select-list-view')
 
 describe('SelectListView', () => {
+  let containerNode = null
+
+  beforeEach(() => {
+    containerNode = document.createElement('div')
+    containerNode.style.position = 'absolute'
+    containerNode.style.left = 0
+    containerNode.style.top = 0
+    document.body.appendChild(containerNode)
+  })
+
+  afterEach(() => {
+    containerNode.remove()
+  })
+
   it('items rendering', async () => {
-    const items = [{name: 'Grace', age: 20}, {name: 'John', age: 42}]
+    const items = [{name: 'Grace'}, {name: 'John'}]
     const selectListView = new SelectListView({
       items,
-      viewForItem: (item) => <div><span>{item.name}</span> <span>{item.age}</span></div>
+      elementForItem: (item) => createElementForItem(item)
     })
-    document.body.appendChild(selectListView.element)
-    assert.equal(selectListView.refs.items.innerText, 'Grace 20\nJohn 42')
+    containerNode.appendChild(selectListView.element)
+    assert.equal(selectListView.refs.items.innerText, 'Grace\nJohn')
 
-    items.push({name: 'Peter', age: '50'})
+    items.push({name: 'Peter'})
     await selectListView.update({items})
-    assert.equal(selectListView.refs.items.innerText, 'Grace 20\nJohn 42\nPeter 50')
+    assert.equal(selectListView.refs.items.innerText, 'Grace\nJohn\nPeter')
 
     await selectListView.destroy()
+    assert(!selectListView.element.parentElement)
   })
 
   it('focus', async () => {
-    const items = [{name: 'Grace', age: 20}, {name: 'John', age: 42}]
     const selectListView = new SelectListView({
-      items,
-      viewForItem: (item) => item.toString()
+      items: [1, 2, 3],
+      elementForItem: (item) => document.createElement('div')
     })
     const previouslyFocusedElement = document.createElement('input')
-    document.body.appendChild(previouslyFocusedElement)
+    containerNode.appendChild(previouslyFocusedElement)
     previouslyFocusedElement.focus()
 
-    document.body.appendChild(selectListView.element)
+    containerNode.appendChild(selectListView.element)
     selectListView.focus()
     assert.equal(document.activeElement.closest('atom-text-editor'), selectListView.refs.queryEditor.element)
     await selectListView.destroy()
@@ -40,58 +54,73 @@ describe('SelectListView', () => {
   })
 
   it('keyboard navigation and selection', async () => {
+    let scrollTop = null
     const selectionConfirmEvents = []
     const selectionChangeEvents = []
     const items = [{name: 'Grace'}, {name: 'John'}, {name: 'Peter'}]
     const selectListView = new SelectListView({
       items,
-      viewForItem: (item) => <div style={{height: '10px'}}>{item.name}</div>,
+      elementForItem: (item) => createElementForItem(item),
       didChangeSelection: (item) => { selectionChangeEvents.push(item) },
       didConfirmSelection: (item) => { selectionConfirmEvents.push(item) }
     })
 
     selectListView.element.style.overflowY = 'auto'
     selectListView.element.style.height = "20px"
-    document.body.appendChild(selectListView.element)
+    containerNode.appendChild(selectListView.element)
 
     assert.equal(selectListView.getSelectedItem(), items[0])
     assert.equal(selectListView.element.querySelector('.selected').textContent, items[0].name)
     assert.equal(selectListView.element.scrollTop, 0)
+    scrollTop = selectListView.element.scrollTop
 
     await selectListView.selectNext()
     assert.equal(selectListView.getSelectedItem(), items[1])
     assert.equal(selectListView.element.querySelector('.selected').textContent, items[1].name)
-    assert.equal(selectListView.element.scrollTop, 30)
+    assert(selectListView.element.scrollTop > scrollTop)
+    scrollTop = selectListView.element.scrollTop
+
     await selectListView.selectNext()
     assert.equal(selectListView.getSelectedItem(), items[2])
     assert.equal(selectListView.element.querySelector('.selected').textContent, items[2].name)
-    assert.notEqual(selectListView.element.scrollTop, 40)
+    assert(selectListView.element.scrollTop > scrollTop)
+    scrollTop = selectListView.element.scrollTop
+
     await selectListView.selectNext()
     assert.equal(selectListView.getSelectedItem(), items[0])
     assert.equal(selectListView.element.querySelector('.selected').textContent, items[0].name)
-    assert.equal(selectListView.element.scrollTop, 20)
+    assert(selectListView.element.scrollTop < scrollTop)
+    scrollTop = selectListView.element.scrollTop
 
     await selectListView.selectPrevious()
     assert.equal(selectListView.getSelectedItem(), items[2])
     assert.equal(selectListView.element.querySelector('.selected').textContent, items[2].name)
-    assert.equal(selectListView.element.scrollTop, 40)
+    assert(selectListView.element.scrollTop > scrollTop)
+    scrollTop = selectListView.element.scrollTop
+
     await selectListView.selectPrevious()
     assert.equal(selectListView.getSelectedItem(), items[1])
     assert.equal(selectListView.element.querySelector('.selected').textContent, items[1].name)
-    assert.equal(selectListView.element.scrollTop, 35)
+    assert(selectListView.element.scrollTop < scrollTop)
+    scrollTop = selectListView.element.scrollTop
+
     await selectListView.selectPrevious()
     assert.equal(selectListView.getSelectedItem(), items[0])
     assert.equal(selectListView.element.querySelector('.selected').textContent, items[0].name)
-    assert.equal(selectListView.element.scrollTop, 20)
+    assert(selectListView.element.scrollTop < scrollTop)
+    scrollTop = selectListView.element.scrollTop
 
     await selectListView.selectLast()
     assert.equal(selectListView.getSelectedItem(), items[2])
     assert.equal(selectListView.element.querySelector('.selected').textContent, items[2].name)
-    assert.equal(selectListView.element.scrollTop, 40)
+    assert(selectListView.element.scrollTop > scrollTop)
+    scrollTop = selectListView.element.scrollTop
+
     await selectListView.selectFirst()
     assert.equal(selectListView.getSelectedItem(), items[0])
     assert.equal(selectListView.element.querySelector('.selected').textContent, items[0].name)
-    assert.equal(selectListView.element.scrollTop, 20)
+    assert(selectListView.element.scrollTop < scrollTop)
+    scrollTop = selectListView.element.scrollTop
 
     assert.deepEqual(selectionConfirmEvents, [])
     assert(selectListView.element.parentElement)
@@ -100,7 +129,6 @@ describe('SelectListView', () => {
     assert(!selectListView.element.parentElement)
 
     assert.deepEqual(selectionChangeEvents, [items[0], items[1], items[2], items[0], items[2], items[1], items[0], items[2], items[0]])
-    await selectListView.destroy()
   })
 
   it('mouse selection', async () => {
@@ -109,7 +137,7 @@ describe('SelectListView', () => {
     const items = [{name: 'Grace'}, {name: 'John'}, {name: 'Peter'}]
     const selectListView = new SelectListView({
       items,
-      viewForItem: (item) => <div className="item">{item.name}</div>,
+      elementForItem: (item) => createElementForItem(item),
       didChangeSelection: (item) => { selectionChangeEvents.push(item) },
       didConfirmSelection: (item) => { selectionConfirmEvents.push(item) }
     })
@@ -128,9 +156,9 @@ describe('SelectListView', () => {
     const selectListView = new SelectListView({
       items,
       filterKeyForItem: (item) => item.name,
-      viewForItem: (item) => <div>{item.name}</div>
+      elementForItem: (item) => createElementForItem(item)
     })
-    document.body.appendChild(selectListView.element)
+    containerNode.appendChild(selectListView.element)
     await selectListView.selectNext()
     assert.equal(selectListView.refs.items.innerText, 'Grace\nJohnathan\nJoanna')
     assert.equal(selectListView.getSelectedItem(), items[1])
@@ -139,7 +167,6 @@ describe('SelectListView', () => {
     await etch.getScheduler().getNextUpdatePromise()
     assert.equal(selectListView.refs.items.innerText, 'Joanna\nJohnathan')
     assert.equal(selectListView.getSelectedItem(), items[2])
-    await selectListView.destroy()
   })
 
   it('custom filtering', async () => {
@@ -154,9 +181,9 @@ describe('SelectListView', () => {
           return [items[index]]
         }
       },
-      viewForItem: (item) => <div>{item.name}</div>
+      elementForItem: (item) => createElementForItem(item)
     })
-    document.body.appendChild(selectListView.element)
+    containerNode.appendChild(selectListView.element)
     await selectListView.selectLast()
     assert.equal(selectListView.refs.items.innerText, 'Elizabeth\nJohnathan\nJoanna')
     assert.equal(selectListView.getSelectedItem(), items[2])
@@ -165,7 +192,6 @@ describe('SelectListView', () => {
     await etch.getScheduler().getNextUpdatePromise()
     assert.equal(selectListView.refs.items.innerText, 'Johnathan')
     assert.equal(selectListView.getSelectedItem(), items[1])
-    await selectListView.destroy()
   })
 
   it('query changes', async () => {
@@ -173,7 +199,7 @@ describe('SelectListView', () => {
     const selectListView = new SelectListView({
       didChangeQuery: (query) => queryChangeEvents.push(query),
       items: [],
-      viewForItem: (i) => i.toString()
+      elementForItem: (i) => document.createElement('div')
     })
     assert.deepEqual(queryChangeEvents, [])
     selectListView.refs.queryEditor.setText('abc')
@@ -186,7 +212,7 @@ describe('SelectListView', () => {
     const selectListView = new SelectListView({
       emptyMessage: 'empty message',
       items: [],
-      viewForItem: (i) => i.toString()
+      elementForItem: (i) => document.createElement('div')
     })
     assert.equal(selectListView.refs.emptyMessage.textContent, 'empty message')
     await selectListView.update({items: [1, 2, 3]})
@@ -197,7 +223,7 @@ describe('SelectListView', () => {
     const selectListView = new SelectListView({
       errorMessage: 'error message',
       items: [],
-      viewForItem: (i) => i.toString()
+      elementForItem: (i) => document.createElement('div')
     })
     assert.equal(selectListView.refs.errorMessage.textContent, 'error message')
     await selectListView.update({items: [1, 2, 3]})
@@ -210,7 +236,7 @@ describe('SelectListView', () => {
     const selectListView = new SelectListView({
       infoMessage: 'info message',
       items: [],
-      viewForItem: (i) => i.toString()
+      elementForItem: (i) => document.createElement('div')
     })
     assert.equal(selectListView.refs.infoMessage.textContent, 'info message')
     await selectListView.update({items: [1, 2, 3]})
@@ -219,3 +245,11 @@ describe('SelectListView', () => {
     assert(!selectListView.refs.infoMessage)
   })
 })
+
+function createElementForItem (item) {
+  const element = document.createElement('div')
+  element.style.height = '10px'
+  element.className = 'item'
+  element.textContent = item.name
+  return element
+}
