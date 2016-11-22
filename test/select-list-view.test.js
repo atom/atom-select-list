@@ -78,7 +78,7 @@ describe('SelectListView', () => {
     })
 
     selectListView.element.style.overflowY = 'auto'
-    selectListView.element.style.height = "20px"
+    selectListView.element.style.height = "10px"
     containerNode.appendChild(selectListView.element)
 
     assert.equal(selectListView.getSelectedItem(), items[0])

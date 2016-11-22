@@ -13,12 +13,13 @@ module.exports = class SelectListView {
     this.selectIndex(0)
     this.disposables = new CompositeDisposable()
     etch.initialize(this)
+    this.element.classList.add('select-list')
     this.disposables.add(this.refs.queryEditor.onDidChange(this.didChangeQuery.bind(this)))
     this.disposables.add(this.registerAtomCommands())
-    const editorInputNode = this.refs.queryEditor.element.component.hiddenInputComponent.getDomNode()
+    const editorElement = this.refs.queryEditor.element
     const didLoseFocus = this.didLoseFocus.bind(this)
-    editorInputNode.addEventListener('blur', didLoseFocus)
-    this.disposables.add(new Disposable(() => { editorInputNode.removeEventListener('blur', didLoseFocus) }))
+    editorElement.addEventListener('blur', didLoseFocus)
+    this.disposables.add(new Disposable(() => { editorElement.removeEventListener('blur', didLoseFocus) }))
   }
 
   focus () {
@@ -120,24 +121,27 @@ module.exports = class SelectListView {
         <TextEditor ref='queryEditor' mini={true} />
         {this.renderInfoMessage()}
         {this.renderErrorMessage()}
-        <ul ref='items'>{this.renderItems()}</ul>
+        {this.renderItems()}
+
       </div>
     )
   }
 
   renderItems () {
     if (this.items.length > 0) {
-      return this.items.map((item, index) =>
-        <ListItemView
-          element={this.props.elementForItem(item)}
-          selected={this.getSelectedItem() === item}
-          onclick={(event) => this.didClickItem(event, index)} />
+      return (
+        <ol className='list-group' ref='items'>
+        {this.items.map((item, index) =>
+          <ListItemView
+            element={this.props.elementForItem(item)}
+            selected={this.getSelectedItem() === item}
+            onclick={(event) => this.didClickItem(event, index)} />)}
+        </ol>
       )
+
     } else {
       return (
-        <div>
-          <span ref="emptyMessage">{this.props.emptyMessage}</span>
-        </div>
+        <span ref="emptyMessage">{this.props.emptyMessage}</span>
       )
     }
   }
