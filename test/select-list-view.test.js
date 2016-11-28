@@ -60,9 +60,6 @@ describe('SelectListView', () => {
     selectListView.refs.items.querySelector('input').focus()
     assert.equal(document.activeElement.closest('atom-text-editor'), selectListView.refs.queryEditor.element)
     assert.equal(cancelSelectionEventsCount, 1)
-
-    await selectListView.restoreFocus()
-    assert.equal(document.activeElement, previouslyFocusedElement)
   })
 
   it('keyboard navigation and selection', async () => {

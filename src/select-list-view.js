@@ -23,13 +23,7 @@ module.exports = class SelectListView {
   }
 
   focus () {
-    this.previouslyFocusedElement = document.activeElement
     this.refs.queryEditor.element.focus()
-  }
-
-  restoreFocus () {
-    this.previouslyFocusedElement.focus()
-    this.previouslyFocusedElement = null
   }
 
   didLoseFocus (event) {
