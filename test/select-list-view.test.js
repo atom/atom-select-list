@@ -249,6 +249,21 @@ describe('SelectListView', () => {
     await selectListView.update({infoMessage: null})
     assert(!selectListView.refs.infoMessage)
   })
+
+  it('items class list', async () => {
+    const selectListView = new SelectListView({
+      itemsClassList: ['a', 'b'],
+      items: [],
+      elementForItem: (i) => document.createElement('li')
+    })
+    await selectListView.update({items: [1, 2, 3]})
+    assert(selectListView.refs.items.classList.contains('a'))
+    assert(selectListView.refs.items.classList.contains('b'))
+    await selectListView.update({itemsClassList: ['c']})
+    assert(!selectListView.refs.items.classList.contains('a'))
+    assert(!selectListView.refs.items.classList.contains('b'))
+    assert(selectListView.refs.items.classList.contains('c'))
+  })
 })
 
 function createElementForItem (item) {

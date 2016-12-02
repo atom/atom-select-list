@@ -102,6 +102,10 @@ module.exports = class SelectListView {
       this.props.infoMessage = props.infoMessage
     }
 
+    if (props.hasOwnProperty('itemsClassList')) {
+      this.props.itemsClassList = props.itemsClassList
+    }
+
     if (shouldComputeItems) {
       this.computeItems()
     }
@@ -122,8 +126,9 @@ module.exports = class SelectListView {
 
   renderItems () {
     if (this.items.length > 0) {
+      const className = ['list-group'].concat(this.props.itemsClassList || []).join(' ')
       return (
-        <ol className='list-group' ref='items'>
+        <ol className={className} ref='items'>
         {this.items.map((item, index) =>
           <ListItemView
             element={this.props.elementForItem(item)}
@@ -131,7 +136,6 @@ module.exports = class SelectListView {
             onclick={() => this.didClickItem(index)} />)}
         </ol>
       )
-
     } else {
       return (
         <span ref="emptyMessage">{this.props.emptyMessage}</span>
