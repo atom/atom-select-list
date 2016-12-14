@@ -90,6 +90,10 @@ module.exports = class SelectListView {
       shouldComputeItems = true
     }
 
+    if (props.hasOwnProperty('order')) {
+      this.props.order = props.order
+    }
+
     if (props.hasOwnProperty('emptyMessage')) {
       this.props.emptyMessage = props.emptyMessage
     }
@@ -183,7 +187,13 @@ module.exports = class SelectListView {
 
   computeItems () {
     const filterFn = this.props.filter || this.fuzzyFilter.bind(this)
-    this.items = filterFn(this.props.items, this.getQuery()).slice(0, this.props.maxResults || Infinity)
+    this.items = filterFn(this.props.items.slice(), this.getQuery())
+    if (this.props.order) {
+      this.items.sort(this.props.order)
+    }
+    if (this.props.maxResults) {
+      this.items.splice(this.props.maxResults, this.items.length - this.props.maxResults)
+    }
   }
 
   fuzzyFilter (items, query) {
@@ -235,10 +245,9 @@ module.exports = class SelectListView {
       if (this.props.didChangeSelection) {
         this.props.didChangeSelection(this.getSelectedItem())
       }
-      return etch.update(this)
-    } else {
-      return Promise.resolve()
     }
+
+    return etch.update(this)
   }
 
   selectItem (item) {

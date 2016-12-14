@@ -213,6 +213,24 @@ describe('SelectListView', () => {
     assert.equal(selectListView.getSelectedItem(), items[1])
   })
 
+  it('ordering', async () => {
+    const items = [{name: 'Grace'}, {name: 'Brad'}, {name: 'Steve'}]
+    const selectListView = new SelectListView({
+      items,
+      filterKeyForItem: (item) => item.name,
+      elementForItem: (item) => createElementForItem(item),
+      order: (a, b) => a.name.localeCompare(b.name)
+    })
+    containerNode.appendChild(selectListView.element)
+    assert.equal(selectListView.refs.items.innerText, 'Brad\nGrace\nSteve')
+    assert.equal(selectListView.getSelectedItem(), items[1])
+
+    selectListView.refs.queryEditor.setText('e')
+    await etch.getScheduler().getNextUpdatePromise()
+    assert.equal(selectListView.refs.items.innerText, 'Grace\nSteve')
+    assert.equal(selectListView.getSelectedItem(), items[0])
+  })
+
   it('query changes', async () => {
     const queryChangeEvents = []
     const selectListView = new SelectListView({
