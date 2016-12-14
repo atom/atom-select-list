@@ -131,11 +131,17 @@ describe('SelectListView', () => {
     assert(selectListView.element.scrollTop < scrollTop)
     scrollTop = selectListView.element.scrollTop
 
+    await selectListView.selectIndex(1)
+    assert.equal(selectListView.getSelectedItem(), items[1])
+    assert.equal(selectListView.element.querySelector('.selected').textContent, items[1].name)
+    assert(selectListView.element.scrollTop > scrollTop)
+    scrollTop = selectListView.element.scrollTop
+
     assert.deepEqual(selectionConfirmEvents, [])
     assert(selectListView.element.parentElement)
     await selectListView.confirmSelection()
-    assert.deepEqual(selectionConfirmEvents, [items[0]])
-    assert.deepEqual(selectionChangeEvents, [items[0], items[1], items[2], items[0], items[2], items[1], items[0], items[2], items[0]])
+    assert.deepEqual(selectionConfirmEvents, [items[1]])
+    assert.deepEqual(selectionChangeEvents, [items[1], items[2], items[0], items[2], items[1], items[0], items[2], items[0], items[1]])
   })
 
   it('mouse selection', async () => {
@@ -149,11 +155,11 @@ describe('SelectListView', () => {
       didConfirmSelection: (item) => { selectionConfirmEvents.push(item) }
     })
     assert.deepEqual(selectionConfirmEvents, [])
-    assert.deepEqual(selectionChangeEvents, [items[0]])
+    assert.deepEqual(selectionChangeEvents, [])
 
     selectListView.element.querySelectorAll('.item')[1].click()
+    assert.deepEqual(selectionChangeEvents, [items[1]])
     assert.deepEqual(selectionConfirmEvents, [items[1]])
-    assert.deepEqual(selectionChangeEvents, [items[0], items[1]])
   })
 
   it('default filtering', async () => {

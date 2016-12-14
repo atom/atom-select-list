@@ -10,7 +10,7 @@ module.exports = class SelectListView {
   constructor (props) {
     this.props = props
     this.computeItems()
-    this.selectIndex(0)
+    this.selectionIndex = 0
     this.disposables = new CompositeDisposable()
     etch.initialize(this)
     this.element.classList.add('select-list')
@@ -174,7 +174,6 @@ module.exports = class SelectListView {
 
     this.computeItems()
     this.selectIndex(0)
-    etch.update(this)
   }
 
   didClickItem (itemIndex) {
@@ -209,35 +208,36 @@ module.exports = class SelectListView {
   }
 
   selectPrevious () {
-    this.selectIndex(this.selectionIndex - 1)
-    return etch.update(this)
+    return this.selectIndex(this.selectionIndex - 1)
   }
 
   selectNext () {
-    this.selectIndex(this.selectionIndex + 1)
-    return etch.update(this)
+    return this.selectIndex(this.selectionIndex + 1)
   }
 
   selectFirst () {
-    this.selectIndex(0)
-    return etch.update(this)
+    return this.selectIndex(0)
   }
 
   selectLast () {
-    this.selectIndex(this.items.length - 1)
-    return etch.update(this)
+    return this.selectIndex(this.items.length - 1)
   }
 
   selectIndex (index) {
-    if (index === this.items.length) {
+    if (index >= this.items.length) {
       index = 0
-    } else if (index === -1) {
+    } else if (index < 0) {
       index = this.items.length - 1
     }
 
-    this.selectionIndex = index
-    if (this.props.didChangeSelection) {
-      this.props.didChangeSelection(this.getSelectedItem())
+    if (index !== this.selectionIndex) {
+      this.selectionIndex = index
+      if (this.props.didChangeSelection) {
+        this.props.didChangeSelection(this.getSelectedItem())
+      }
+      return etch.update(this)
+    } else {
+      return Promise.resolve()
     }
   }
 
