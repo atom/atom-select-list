@@ -15,7 +15,9 @@ module.exports = class SelectListView {
     etch.initialize(this)
     this.element.classList.add('select-list')
     this.disposables.add(this.refs.queryEditor.onDidChange(this.didChangeQuery.bind(this)))
-    this.disposables.add(this.registerAtomCommands())
+    if (!props.skipCommandsRegistration) {
+      this.disposables.add(this.registerAtomCommands())
+    }
     const editorElement = this.refs.queryEditor.element
     const didLoseFocus = this.didLoseFocus.bind(this)
     editorElement.addEventListener('blur', didLoseFocus)
