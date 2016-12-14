@@ -241,6 +241,15 @@ module.exports = class SelectListView {
     }
   }
 
+  selectItem (item) {
+    const index = this.items.indexOf(item)
+    if (index === -1) {
+      throw new Error('Cannot select the specified item because it does not exist.')
+    } else {
+      return this.selectIndex(index)
+    }
+  }
+
   confirmSelection () {
     if (this.props.didConfirmSelection) {
       this.props.didConfirmSelection(this.getSelectedItem())

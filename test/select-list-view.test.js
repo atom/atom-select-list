@@ -137,11 +137,19 @@ describe('SelectListView', () => {
     assert(selectListView.element.scrollTop > scrollTop)
     scrollTop = selectListView.element.scrollTop
 
+    await selectListView.selectItem(items[2])
+    assert.equal(selectListView.getSelectedItem(), items[2])
+    assert.equal(selectListView.element.querySelector('.selected').textContent, items[2].name)
+    assert(selectListView.element.scrollTop > scrollTop)
+    scrollTop = selectListView.element.scrollTop
+
+    assert.throws(() => { selectListView.selectItem(null) })
+
     assert.deepEqual(selectionConfirmEvents, [])
     assert(selectListView.element.parentElement)
     await selectListView.confirmSelection()
-    assert.deepEqual(selectionConfirmEvents, [items[1]])
-    assert.deepEqual(selectionChangeEvents, [items[1], items[2], items[0], items[2], items[1], items[0], items[2], items[0], items[1]])
+    assert.deepEqual(selectionConfirmEvents, [items[2]])
+    assert.deepEqual(selectionChangeEvents, [items[1], items[2], items[0], items[2], items[1], items[0], items[2], items[0], items[1], items[2]])
   })
 
   it('mouse selection', async () => {
