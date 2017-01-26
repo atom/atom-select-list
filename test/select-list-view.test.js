@@ -192,12 +192,13 @@ describe('SelectListView', () => {
     const items = [{name: 'Elizabeth'}, {name: 'Johnathan'}, {name: 'Joanna'}]
     const selectListView = new SelectListView({
       items,
+      filterQuery: (query) => query[0],
       filter: (items, query) => {
-        if (query === '') {
-          return items
-        } else {
-          const index = Number(selectListView.getQuery())
+        if (query) {
+          const index = Number(query)
           return [items[index]]
+        } else {
+          return items
         }
       },
       elementForItem: (item) => createElementForItem(item)
@@ -207,7 +208,7 @@ describe('SelectListView', () => {
     assert.equal(selectListView.refs.items.innerText, 'Elizabeth\nJohnathan\nJoanna')
     assert.equal(selectListView.getSelectedItem(), items[2])
 
-    selectListView.refs.queryEditor.setText('1')
+    selectListView.refs.queryEditor.setText('1z')
     await etch.getScheduler().getNextUpdatePromise()
     assert.equal(selectListView.refs.items.innerText, 'Johnathan')
     assert.equal(selectListView.getSelectedItem(), items[1])

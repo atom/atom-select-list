@@ -92,6 +92,11 @@ module.exports = class SelectListView {
       shouldComputeItems = true
     }
 
+    if (props.hasOwnProperty('filterQuery')) {
+      this.props.filterQuery = props.filterQuery
+      shouldComputeItems = true
+    }
+
     if (props.hasOwnProperty('order')) {
       this.props.order = props.order
     }
@@ -197,9 +202,13 @@ module.exports = class SelectListView {
     }
   }
 
+  getFilterQuery () {
+    return this.props.filterQuery ? this.props.filterQuery(this.getQuery()) : this.getQuery()
+  }
+
   didChangeQuery () {
     if (this.props.didChangeQuery) {
-      this.props.didChangeQuery(this.getQuery())
+      this.props.didChangeQuery(this.getFilterQuery())
     }
 
     this.computeItems()
@@ -213,7 +222,7 @@ module.exports = class SelectListView {
 
   computeItems () {
     const filterFn = this.props.filter || this.fuzzyFilter.bind(this)
-    this.items = filterFn(this.props.items.slice(), this.getQuery())
+    this.items = filterFn(this.props.items.slice(), this.getFilterQuery())
     if (this.props.order) {
       this.items.sort(this.props.order)
     }
