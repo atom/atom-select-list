@@ -108,6 +108,14 @@ module.exports = class SelectListView {
       this.props.infoMessage = props.infoMessage
     }
 
+    if (props.hasOwnProperty('loadingMessage')) {
+      this.props.loadingMessage = props.loadingMessage
+    }
+
+    if (props.hasOwnProperty('loadingBadge')) {
+      this.props.loadingBadge = props.loadingBadge
+    }
+
     if (props.hasOwnProperty('itemsClassList')) {
       this.props.itemsClassList = props.itemsClassList
     }
@@ -123,6 +131,7 @@ module.exports = class SelectListView {
     return (
       <div>
         <TextEditor ref='queryEditor' mini={true} />
+        {this.renderLoadingMessage()}
         {this.renderInfoMessage()}
         {this.renderErrorMessage()}
         {this.renderItems()}
@@ -160,6 +169,19 @@ module.exports = class SelectListView {
   renderInfoMessage () {
     if (this.props.infoMessage) {
       return <span ref="infoMessage">{this.props.infoMessage}</span>
+    } else {
+      return ''
+    }
+  }
+
+  renderLoadingMessage () {
+    if (this.props.loadingMessage) {
+      return (
+        <div class="loading">
+          <span ref="loadingMessage" class="loading-message">{this.props.loadingMessage}</span>
+          {this.props.loadingBadge ? <span ref="loadingBadge" class="badge">{this.props.loadingBadge}</span> : ""}
+        </div>
+      )
     } else {
       return ''
     }

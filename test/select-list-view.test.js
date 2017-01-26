@@ -282,6 +282,23 @@ describe('SelectListView', () => {
     assert(!selectListView.refs.infoMessage)
   })
 
+  it('loading message', async () => {
+    const selectListView = new SelectListView({
+      loadingMessage: 'loading message',
+      loadingBadge: '4',
+      items: [],
+      elementForItem: (i) => document.createElement('li')
+    })
+    assert.equal(selectListView.refs.loadingMessage.textContent, 'loading message')
+    assert.equal(selectListView.refs.loadingBadge.textContent, '4')
+    await selectListView.update({loadingBadge: null})
+    assert.equal(selectListView.refs.loadingMessage.textContent, 'loading message')
+    assert(!selectListView.refs.loadingBadge)
+    await selectListView.update({loadingMessage: null})
+    assert(!selectListView.refs.loadingMessage)
+    assert(!selectListView.refs.loadingBadge)
+  })
+
   it('items class list', async () => {
     const selectListView = new SelectListView({
       itemsClassList: ['a', 'b'],
