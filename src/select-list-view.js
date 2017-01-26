@@ -151,10 +151,12 @@ module.exports = class SelectListView {
             onclick={() => this.didClickItem(index)} />)}
         </ol>
       )
-    } else {
+    } else if (!this.props.loadingMessage) {
       return (
         <span ref="emptyMessage">{this.props.emptyMessage}</span>
       )
+    } else {
+      return ""
     }
   }
 
