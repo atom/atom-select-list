@@ -177,9 +177,9 @@ module.exports = class SelectListView {
   renderLoadingMessage () {
     if (this.props.loadingMessage) {
       return (
-        <div class="loading">
-          <span ref="loadingMessage" class="loading-message">{this.props.loadingMessage}</span>
-          {this.props.loadingBadge ? <span ref="loadingBadge" class="badge">{this.props.loadingBadge}</span> : ""}
+        <div className="loading">
+          <span ref="loadingMessage" className="loading-message">{this.props.loadingMessage}</span>
+          {this.props.loadingBadge ? <span ref="loadingBadge" className="badge">{this.props.loadingBadge}</span> : ""}
         </div>
       )
     } else {
