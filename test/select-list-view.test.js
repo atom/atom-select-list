@@ -152,6 +152,38 @@ describe('SelectListView', () => {
     assert.deepEqual(selectionChangeEvents, [items[1], items[2], items[0], items[2], items[1], items[0], items[2], items[0], items[1], items[2]])
   })
 
+  it('confirming an empty selection', async () => {
+    let selectionCancelEventsCount = 0
+    const selectionConfirmEvents = []
+    const selectionChangeEvents = []
+    const items = [{name: 'Grace'}, {name: 'John'}, {name: 'Peter'}]
+    const selectListView = new SelectListView({
+      items,
+      elementForItem: (item) => createElementForItem(item),
+      didChangeSelection: (item) => { selectionChangeEvents.push(item) },
+      didConfirmSelection: (item) => { selectionConfirmEvents.push(item) },
+      didCancelSelection: () => { selectionCancelEventsCount++ },
+      filterKeyForItem: (item) => item.name
+    })
+
+    selectListView.refs.queryEditor.setText('unexisting')
+    await etch.getScheduler().getNextUpdatePromise()
+    assert(!selectListView.getSelectedItem())
+    await selectListView.confirmSelection()
+    assert.deepEqual(selectionChangeEvents, [])
+    assert.deepEqual(selectionConfirmEvents, [])
+    assert.equal(selectionCancelEventsCount, 1)
+
+    selectionCancelEventsCount = 0
+    selectListView.reset()
+    await selectListView.update({items: []})
+    assert(!selectListView.getSelectedItem())
+    await selectListView.confirmSelection()
+    assert.deepEqual(selectionChangeEvents, [])
+    assert.deepEqual(selectionConfirmEvents, [])
+    assert.equal(selectionCancelEventsCount, 1)
+  })
+
   it('mouse selection', async () => {
     const selectionConfirmEvents = []
     const selectionChangeEvents = []
