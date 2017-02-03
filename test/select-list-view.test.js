@@ -153,6 +153,7 @@ describe('SelectListView', () => {
   })
 
   it('confirming an empty selection', async () => {
+    let emptySelectionConfirmEventsCount = 0
     let selectionCancelEventsCount = 0
     const selectionConfirmEvents = []
     const selectionChangeEvents = []
@@ -162,6 +163,7 @@ describe('SelectListView', () => {
       elementForItem: (item) => createElementForItem(item),
       didChangeSelection: (item) => { selectionChangeEvents.push(item) },
       didConfirmSelection: (item) => { selectionConfirmEvents.push(item) },
+      didConfirmEmptySelection: (item) => { emptySelectionConfirmEventsCount++ },
       didCancelSelection: () => { selectionCancelEventsCount++ },
       filterKeyForItem: (item) => item.name
     })
@@ -172,16 +174,16 @@ describe('SelectListView', () => {
     await selectListView.confirmSelection()
     assert.deepEqual(selectionChangeEvents, [])
     assert.deepEqual(selectionConfirmEvents, [])
-    assert.equal(selectionCancelEventsCount, 1)
+    assert.equal(selectionCancelEventsCount, 0)
+    assert.equal(emptySelectionConfirmEventsCount, 1)
 
-    selectionCancelEventsCount = 0
     selectListView.reset()
     await selectListView.update({items: []})
     assert(!selectListView.getSelectedItem())
     await selectListView.confirmSelection()
     assert.deepEqual(selectionChangeEvents, [])
     assert.deepEqual(selectionConfirmEvents, [])
-    assert.equal(selectionCancelEventsCount, 1)
+    assert.equal(emptySelectionConfirmEventsCount, 2)
   })
 
   it('mouse selection', async () => {

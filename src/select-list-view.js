@@ -301,8 +301,8 @@ module.exports = class SelectListView {
         this.props.didConfirmSelection(selectedItem)
       }
     } else {
-      if (this.props.didCancelSelection) {
-        this.props.didCancelSelection()
+      if (this.props.didConfirmEmptySelection) {
+        this.props.didConfirmEmptySelection()
       }
     }
   }
