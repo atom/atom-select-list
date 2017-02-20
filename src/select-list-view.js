@@ -10,7 +10,6 @@ module.exports = class SelectListView {
   constructor (props) {
     this.props = props
     this.computeItems()
-    this.selectionIndex = 0
     this.disposables = new CompositeDisposable()
     etch.initialize(this)
     this.element.classList.add('select-list')
@@ -212,7 +211,6 @@ module.exports = class SelectListView {
     }
 
     this.computeItems()
-    this.selectIndex(0)
   }
 
   didClickItem (itemIndex) {
@@ -229,6 +227,8 @@ module.exports = class SelectListView {
     if (this.props.maxResults) {
       this.items.splice(this.props.maxResults, this.items.length - this.props.maxResults)
     }
+
+    this.selectIndex(0)
   }
 
   fuzzyFilter (items, query) {
@@ -275,11 +275,9 @@ module.exports = class SelectListView {
       index = this.items.length - 1
     }
 
-    if (index !== this.selectionIndex) {
-      this.selectionIndex = index
-      if (this.props.didChangeSelection) {
-        this.props.didChangeSelection(this.getSelectedItem())
-      }
+    this.selectionIndex = index
+    if (this.props.didChangeSelection) {
+      this.props.didChangeSelection(this.getSelectedItem())
     }
 
     return etch.update(this)

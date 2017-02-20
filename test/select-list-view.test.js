@@ -149,7 +149,7 @@ describe('SelectListView', () => {
     assert(selectListView.element.parentElement)
     await selectListView.confirmSelection()
     assert.deepEqual(selectionConfirmEvents, [items[2]])
-    assert.deepEqual(selectionChangeEvents, [items[1], items[2], items[0], items[2], items[1], items[0], items[2], items[0], items[1], items[2]])
+    assert.deepEqual(selectionChangeEvents, [items[0], items[1], items[2], items[0], items[2], items[1], items[0], items[2], items[0], items[1], items[2]])
   })
 
   it('confirming an empty selection', async () => {
@@ -167,21 +167,27 @@ describe('SelectListView', () => {
       didCancelSelection: () => { selectionCancelEventsCount++ },
       filterKeyForItem: (item) => item.name
     })
+    assert.deepEqual(selectionChangeEvents, [items[0]])
 
     selectListView.refs.queryEditor.setText('unexisting')
     await etch.getScheduler().getNextUpdatePromise()
     assert(!selectListView.getSelectedItem())
+    assert.deepEqual(selectionChangeEvents, [items[0], undefined])
+
     await selectListView.confirmSelection()
-    assert.deepEqual(selectionChangeEvents, [])
     assert.deepEqual(selectionConfirmEvents, [])
     assert.equal(selectionCancelEventsCount, 0)
     assert.equal(emptySelectionConfirmEventsCount, 1)
 
     selectListView.reset()
+    await etch.getScheduler().getNextUpdatePromise()
+    assert.deepEqual(selectionChangeEvents, [items[0], undefined, items[0]])
+
     await selectListView.update({items: []})
     assert(!selectListView.getSelectedItem())
+    assert.deepEqual(selectionChangeEvents, [items[0], undefined, items[0], undefined])
+
     await selectListView.confirmSelection()
-    assert.deepEqual(selectionChangeEvents, [])
     assert.deepEqual(selectionConfirmEvents, [])
     assert.equal(emptySelectionConfirmEventsCount, 2)
   })
@@ -197,10 +203,10 @@ describe('SelectListView', () => {
       didConfirmSelection: (item) => { selectionConfirmEvents.push(item) }
     })
     assert.deepEqual(selectionConfirmEvents, [])
-    assert.deepEqual(selectionChangeEvents, [])
+    assert.deepEqual(selectionChangeEvents, [items[0]])
 
     selectListView.element.querySelectorAll('.item')[1].click()
-    assert.deepEqual(selectionChangeEvents, [items[1]])
+    assert.deepEqual(selectionChangeEvents, [items[0], items[1]])
     assert.deepEqual(selectionConfirmEvents, [items[1]])
   })
 
