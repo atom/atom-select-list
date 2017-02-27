@@ -155,7 +155,7 @@ module.exports = class SelectListView {
             onclick={() => this.didClickItem(index)} />)}
         </ol>
       )
-    } else if (!this.props.loadingMessage) {
+    } else if (!this.props.loadingMessage && this.props.emptyMessage) {
       return (
         <span ref="emptyMessage">{this.props.emptyMessage}</span>
       )
@@ -348,34 +348,24 @@ class ListItemView {
   }
 
   destroy () {
-    if (this.selected) {
-      this.element.classList.remove('selected')
-    }
+    this.element.remove()
     this.domEventsDisposable.dispose()
   }
 
   update (props) {
-    if (this.element !== props.element) {
-      this.element.removeEventListener('mousedown', this.mouseDown)
-      props.element.addEventListener('mousedown', this.mouseDown)
-      this.element.removeEventListener('mouseup', this.mouseUp)
-      props.element.addEventListener('mouseup', this.mouseUp)
-      this.element.removeEventListener('click', this.didClick)
-      props.element.addEventListener('click', this.didClick)
+    this.element.removeEventListener('mousedown', this.mouseDown)
+    this.element.removeEventListener('mouseup', this.mouseUp)
+    this.element.removeEventListener('click', this.didClick)
 
-      props.element.classList.remove('selected')
-      if (props.selected) {
-        props.element.classList.add('selected')
-      }
-    } else {
-      if (this.selected && !props.selected) {
-        this.element.classList.remove('selected')
-      } else if (!this.selected && props.selected) {
-        this.element.classList.add('selected')
-      }
+    this.element.parentNode.replaceChild(props.element, this.element)
+    this.element = props.element
+    this.element.addEventListener('mousedown', this.mouseDown)
+    this.element.addEventListener('mouseup', this.mouseUp)
+    this.element.addEventListener('click', this.didClick)
+    if (props.selected) {
+      this.element.classList.add('selected')
     }
 
-    this.element = props.element
     this.selected = props.selected
     this.onclick = props.onclick
     etch.getScheduler().updateDocument(this.scrollIntoViewIfNeeded.bind(this))
