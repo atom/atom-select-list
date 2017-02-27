@@ -1,8 +1,6 @@
-/** @babel */
-/** @jsx etch.dom */
-
 const {Disposable, CompositeDisposable, TextEditor} = require('atom')
 const etch = require('etch')
+const $ = etch.dom
 const fuzzaldrin = require('fuzzaldrin')
 const path = require('path')
 
@@ -132,33 +130,29 @@ module.exports = class SelectListView {
   }
 
   render () {
-    return (
-      <div>
-        <TextEditor ref='queryEditor' mini={true} />
-        {this.renderLoadingMessage()}
-        {this.renderInfoMessage()}
-        {this.renderErrorMessage()}
-        {this.renderItems()}
-      </div>
+    return $.div(
+      {},
+      $(TextEditor, {ref: 'queryEditor', mini: true}),
+      this.renderLoadingMessage(),
+      this.renderInfoMessage(),
+      this.renderErrorMessage(),
+      this.renderItems()
     )
   }
 
   renderItems () {
     if (this.items.length > 0) {
       const className = ['list-group'].concat(this.props.itemsClassList || []).join(' ')
-      return (
-        <ol className={className} ref='items'>
-        {this.items.map((item, index) =>
-          <ListItemView
-            element={this.props.elementForItem(item)}
-            selected={this.getSelectedItem() === item}
-            onclick={() => this.didClickItem(index)} />)}
-        </ol>
+      return $.ol(
+        {className, ref: 'items'},
+        ...this.items.map((item, index) => $(ListItemView, {
+          element: this.props.elementForItem(item),
+          selected: this.getSelectedItem() === item,
+          onclick: () => this.didClickItem(index)
+        }))
       )
     } else if (!this.props.loadingMessage && this.props.emptyMessage) {
-      return (
-        <span ref="emptyMessage">{this.props.emptyMessage}</span>
-      )
+      return $.span({ref: 'emptyMessage'}, this.props.emptyMessage)
     } else {
       return ""
     }
@@ -166,7 +160,7 @@ module.exports = class SelectListView {
 
   renderErrorMessage () {
     if (this.props.errorMessage) {
-      return <span ref="errorMessage">{this.props.errorMessage}</span>
+      return $.span({ref: 'errorMessage'}, this.props.errorMessage)
     } else {
       return ''
     }
@@ -174,7 +168,7 @@ module.exports = class SelectListView {
 
   renderInfoMessage () {
     if (this.props.infoMessage) {
-      return <span ref="infoMessage">{this.props.infoMessage}</span>
+      return $.span({ref: 'infoMessage'}, this.props.infoMessage)
     } else {
       return ''
     }
@@ -182,11 +176,10 @@ module.exports = class SelectListView {
 
   renderLoadingMessage () {
     if (this.props.loadingMessage) {
-      return (
-        <div className="loading">
-          <span ref="loadingMessage" className="loading-message">{this.props.loadingMessage}</span>
-          {this.props.loadingBadge ? <span ref="loadingBadge" className="badge">{this.props.loadingBadge}</span> : ""}
-        </div>
+      return $.div(
+        {className: 'loading'},
+        $.span({ref: 'loadingMessage', className: 'loading-message'}, this.props.loadingMessage),
+        this.props.loadingBadge ? $.span({ref: 'loadingBadge', className: 'badge'}, this.props.loadingBadge) : ''
       )
     } else {
       return ''
@@ -197,7 +190,7 @@ module.exports = class SelectListView {
     if (this.refs && this.refs.queryEditor) {
       return this.refs.queryEditor.getText()
     } else {
-      return ""
+      return ''
     }
   }
 
