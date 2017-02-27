@@ -1,6 +1,6 @@
 {
   "name": "atom-select-list",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "description": "A general-purpose select list for use in Atom packages",
   "main": "./src/select-list-view.js",
   "scripts": {
