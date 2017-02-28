@@ -157,21 +157,20 @@ describe('SelectListView', () => {
     let selectionCancelEventsCount = 0
     const selectionConfirmEvents = []
     const selectionChangeEvents = []
-    const items = [{name: 'Grace'}, {name: 'John'}, {name: 'Peter'}]
+    const items = ['Grace', 'John', 'Peter', '']
     const selectListView = new SelectListView({
       items,
       elementForItem: (item) => createElementForItem(item),
       didChangeSelection: (item) => { selectionChangeEvents.push(item) },
       didConfirmSelection: (item) => { selectionConfirmEvents.push(item) },
       didConfirmEmptySelection: (item) => { emptySelectionConfirmEventsCount++ },
-      didCancelSelection: () => { selectionCancelEventsCount++ },
-      filterKeyForItem: (item) => item.name
+      didCancelSelection: () => { selectionCancelEventsCount++ }
     })
     assert.deepEqual(selectionChangeEvents, [items[0]])
 
     selectListView.refs.queryEditor.setText('unexisting')
     await etch.getScheduler().getNextUpdatePromise()
-    assert(!selectListView.getSelectedItem())
+    assert(selectListView.getSelectedItem() == null)
     assert.deepEqual(selectionChangeEvents, [items[0], undefined])
 
     await selectListView.confirmSelection()
@@ -183,12 +182,18 @@ describe('SelectListView', () => {
     await etch.getScheduler().getNextUpdatePromise()
     assert.deepEqual(selectionChangeEvents, [items[0], undefined, items[0]])
 
+    await selectListView.selectPrevious()
+    assert.deepEqual(selectionChangeEvents, [items[0], undefined, items[0], items[3]])
+    assert.equal(selectListView.getSelectedItem(), items[3])
+    await selectListView.confirmSelection()
+    assert.deepEqual(selectionConfirmEvents, [items[3]])
+
     await selectListView.update({items: []})
-    assert(!selectListView.getSelectedItem())
-    assert.deepEqual(selectionChangeEvents, [items[0], undefined, items[0], undefined])
+    assert(selectListView.getSelectedItem() == null)
+    assert.deepEqual(selectionChangeEvents, [items[0], undefined, items[0], items[3], undefined])
 
     await selectListView.confirmSelection()
-    assert.deepEqual(selectionConfirmEvents, [])
+    assert.deepEqual(selectionConfirmEvents, [items[3]])
     assert.equal(emptySelectionConfirmEventsCount, 2)
   })
 
@@ -364,6 +369,6 @@ function createElementForItem (item) {
   const element = document.createElement('li')
   element.style.height = '10px'
   element.className = 'item'
-  element.textContent = item.name
+  element.textContent = item.name || item
   return element
 }

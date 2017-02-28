@@ -291,7 +291,7 @@ module.exports = class SelectListView {
 
   confirmSelection () {
     const selectedItem = this.getSelectedItem()
-    if (selectedItem) {
+    if (selectedItem != null) {
       if (this.props.didConfirmSelection) {
         this.props.didConfirmSelection(selectedItem)
       }
