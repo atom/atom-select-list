@@ -7,7 +7,7 @@ const path = require('path')
 module.exports = class SelectListView {
   constructor (props) {
     this.props = props
-    this.computeItems()
+    this.computeItems(false)
     this.disposables = new CompositeDisposable()
     etch.initialize(this)
     this.element.classList.add('select-list')
@@ -211,7 +211,7 @@ module.exports = class SelectListView {
     this.confirmSelection()
   }
 
-  computeItems () {
+  computeItems (updateComponent) {
     const filterFn = this.props.filter || this.fuzzyFilter.bind(this)
     this.items = filterFn(this.props.items.slice(), this.getFilterQuery())
     if (this.props.order) {
@@ -221,7 +221,7 @@ module.exports = class SelectListView {
       this.items.splice(this.props.maxResults, this.items.length - this.props.maxResults)
     }
 
-    this.selectIndex(0)
+    this.selectIndex(0, updateComponent)
   }
 
   fuzzyFilter (items, query) {
@@ -261,7 +261,7 @@ module.exports = class SelectListView {
     return this.selectIndex(this.items.length - 1)
   }
 
-  selectIndex (index) {
+  selectIndex (index, updateComponent = true) {
     if (index >= this.items.length) {
       index = 0
     } else if (index < 0) {
@@ -273,7 +273,11 @@ module.exports = class SelectListView {
       this.props.didChangeSelection(this.getSelectedItem())
     }
 
-    return etch.update(this)
+    if (updateComponent) {
+      return etch.update(this)
+    } else {
+      return Promise.resolve()
+    }
   }
 
   selectItem (item) {
