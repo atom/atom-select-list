@@ -28,7 +28,7 @@ module.exports = class SelectListView {
   didLoseFocus (event) {
     if (this.element.contains(event.relatedTarget)) {
       this.refs.queryEditor.element.focus()
-    } else {
+    } else if (document.hasFocus()) {
       this.cancelSelection()
     }
   }
