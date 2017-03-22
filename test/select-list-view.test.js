@@ -2,6 +2,7 @@
 
 const assert = require('assert')
 const etch = require('etch')
+const sinon = require('sinon')
 const SelectListView = require('../src/select-list-view')
 
 describe('SelectListView', () => {
@@ -59,6 +60,10 @@ describe('SelectListView', () => {
 
     selectListView.refs.items.querySelector('input').focus()
     assert.equal(document.activeElement.closest('atom-text-editor'), selectListView.refs.queryEditor.element)
+    assert.equal(cancelSelectionEventsCount, 1)
+
+    sinon.stub(document, "hasFocus").callsFake(() => false)
+    selectListView.refs.queryEditor.element.dispatchEvent(new FocusEvent('blur'))
     assert.equal(cancelSelectionEventsCount, 1)
   })
 

@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "etch": "0.9.0",
-    "fuzzaldrin": "^2.1.0"
+    "fuzzaldrin": "^2.1.0",
+    "sinon": "2.1.0"
   }
 }
