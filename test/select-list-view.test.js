@@ -3,6 +3,7 @@
 const assert = require('assert')
 const etch = require('etch')
 const sinon = require('sinon')
+const sandbox = sinon.sandbox.create()
 const SelectListView = require('../src/select-list-view')
 
 describe('SelectListView', () => {
@@ -14,6 +15,7 @@ describe('SelectListView', () => {
   })
 
   afterEach(() => {
+    sandbox.restore()
     containerNode.remove()
   })
 
@@ -62,9 +64,14 @@ describe('SelectListView', () => {
     assert.equal(document.activeElement.closest('atom-text-editor'), selectListView.refs.queryEditor.element)
     assert.equal(cancelSelectionEventsCount, 1)
 
-    sinon.stub(document, "hasFocus").callsFake(() => false)
+    const documentHasFocusStub = sandbox.stub(document, "hasFocus")
+    documentHasFocusStub.callsFake(() => false)
     selectListView.refs.queryEditor.element.dispatchEvent(new FocusEvent('blur'))
     assert.equal(cancelSelectionEventsCount, 1)
+
+    documentHasFocusStub.callsFake(() => true)
+    selectListView.refs.queryEditor.element.dispatchEvent(new FocusEvent('blur'))
+    assert.equal(cancelSelectionEventsCount, 2)
   })
 
   it('keyboard navigation and selection', async () => {
