@@ -180,8 +180,7 @@ describe('SelectListView', () => {
     })
     assert.deepEqual(selectionChangeEvents, [items[0]])
 
-    selectListView.refs.queryEditor.setText('unexisting')
-    await etch.getScheduler().getNextUpdatePromise()
+    await selectListView.update({query: 'unexisting'})
     assert(selectListView.getSelectedItem() == null)
     assert.deepEqual(selectionChangeEvents, [items[0], undefined])
 
@@ -239,8 +238,7 @@ describe('SelectListView', () => {
     assert.equal(selectListView.refs.items.innerText, 'Grace\nJohnathan\nJoanna')
     assert.equal(selectListView.getSelectedItem(), items[1])
 
-    selectListView.refs.queryEditor.setText('Jon')
-    await etch.getScheduler().getNextUpdatePromise()
+    await selectListView.update({query: 'Jon'})
     assert.equal(selectListView.refs.items.innerText, 'Joanna\nJohnathan')
     assert.equal(selectListView.getSelectedItem(), items[2])
   })
@@ -265,8 +263,7 @@ describe('SelectListView', () => {
     assert.equal(selectListView.refs.items.innerText, 'Elizabeth\nJohnathan\nJoanna')
     assert.equal(selectListView.getSelectedItem(), items[2])
 
-    selectListView.refs.queryEditor.setText('1z')
-    await etch.getScheduler().getNextUpdatePromise()
+    await selectListView.update({query: '1z'})
     assert.equal(selectListView.refs.items.innerText, 'Johnathan')
     assert.equal(selectListView.getSelectedItem(), items[1])
   })
@@ -283,8 +280,7 @@ describe('SelectListView', () => {
     assert.equal(selectListView.refs.items.innerText, 'Brad\nGrace\nSteve')
     assert.equal(selectListView.getSelectedItem(), items[1])
 
-    selectListView.refs.queryEditor.setText('e')
-    await etch.getScheduler().getNextUpdatePromise()
+    await selectListView.update({query: 'e'})
     assert.equal(selectListView.refs.items.innerText, 'Grace\nSteve')
     assert.equal(selectListView.getSelectedItem(), items[0])
   })
@@ -297,9 +293,9 @@ describe('SelectListView', () => {
       elementForItem: (i) => document.createElement('li')
     })
     assert.deepEqual(queryChangeEvents, [])
-    selectListView.refs.queryEditor.setText('abc')
+    await selectListView.update({query: 'abc'})
     assert.deepEqual(queryChangeEvents, ['abc'])
-    selectListView.refs.queryEditor.setText('')
+    await selectListView.update({query: ''})
     assert.deepEqual(queryChangeEvents, ['abc', ''])
   })
 

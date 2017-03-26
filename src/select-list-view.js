@@ -94,6 +94,13 @@ module.exports = class SelectListView {
       shouldComputeItems = true
     }
 
+    if (props.hasOwnProperty('query')) {
+      // Items will be recomputed as part of the change event handler, so we
+      // don't need to recompute them again at the end of this function.
+      this.refs.queryEditor.setText(props.query)
+      shouldComputeItems = false
+    }
+
     if (props.hasOwnProperty('order')) {
       this.props.order = props.order
     }
