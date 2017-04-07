@@ -16,5 +16,9 @@
   "dependencies": {
     "etch": "^0.9.5",
     "fuzzaldrin": "^2.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/atom/atom-select-list.git"
   }
 }
