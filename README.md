@@ -36,7 +36,7 @@ render () {
 When creating a new instance of a select list, or when calling `update` on an existing one, you can supply a JavaScript object that can contain any of the following properties:
 
 * `items: [Object]`: an array containing the objects you want to show in the select list.
-* `viewForItem: (item: Object) -> HTMLElement`: a function that is called whenever an item needs to be displayed. 
+* `elementForItem: (item: Object) -> HTMLElement`: a function that is called whenever an item needs to be displayed. 
 * (Optional) `maxResults: Number`: the number of maximum items that are shown.
 * (Optional) `filter: (items: [Object], query: String) -> [Object]`: a function that allows to decide which items to show whenever the query changes. By default, it uses [fuzzaldrin](https://github.com/atom/fuzzaldrin) to filter results.
 * (Optional) `filterKeyForItem: (item: Object) -> String`: when `filter` is not provided, this function will be called to retrieve a string property on each item and that will be used to filter them.
