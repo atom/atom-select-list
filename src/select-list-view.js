@@ -225,7 +225,7 @@ module.exports = class SelectListView {
       this.items.sort(this.props.order)
     }
     if (this.props.maxResults) {
-      this.items.splice(this.props.maxResults, this.items.length - this.props.maxResults)
+      this.items = this.items.slice(0, this.props.maxResults)
     }
 
     this.selectIndex(0, updateComponent)
