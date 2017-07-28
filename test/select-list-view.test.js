@@ -164,6 +164,56 @@ describe('SelectListView', () => {
     assert.deepEqual(selectionChangeEvents, [items[0], items[1], items[2], items[0], items[2], items[1], items[0], items[2], items[0], items[1], items[2]])
   })
 
+  it('keyboard navigation and selection when initial selection undefined', async () => {
+    let scrollTop = null
+    const selectionConfirmEvents = []
+    const selectionChangeEvents = []
+    const items = [{name: 'Grace'}, {name: 'John'}, {name: 'Peter'}]
+    const selectListView = new SelectListView({
+      items,
+      initialSelectionIndex: undefined,
+      elementForItem: (item) => createElementForItem(item),
+      didChangeSelection: (item) => { selectionChangeEvents.push(item) },
+      didConfirmSelection: (item) => { selectionConfirmEvents.push(item) }
+    })
+
+    selectListView.element.style.overflowY = 'auto'
+    selectListView.element.style.height = "10px"
+    containerNode.appendChild(selectListView.element)
+
+    assert.equal(selectListView.getSelectedItem(), null)
+    assert.equal(selectListView.element.querySelector('.selected'), null)
+    assert.equal(selectListView.element.scrollTop, 0)
+    scrollTop = selectListView.element.scrollTop
+
+    await selectListView.selectNext()
+    assert.equal(selectListView.getSelectedItem(), items[0])
+    assert.equal(selectListView.element.querySelector('.selected').textContent, items[0].name)
+    assert(selectListView.element.scrollTop > scrollTop)
+    scrollTop = selectListView.element.scrollTop
+
+    await selectListView.selectNone()
+    assert.equal(selectListView.getSelectedItem(), null)
+    assert.equal(selectListView.element.querySelector('.selected'), null)
+    assert.equal(selectListView.element.scrollTop, scrollTop)
+    scrollTop = selectListView.element.scrollTop
+
+    selectListView.reset()
+    await etch.getScheduler().getNextUpdatePromise()
+    assert.deepEqual(selectionChangeEvents, [items[0]])
+
+    await selectListView.selectPrevious()
+    assert.deepEqual(selectionChangeEvents, [items[0], items[2]])
+    assert.equal(selectListView.getSelectedItem(), items[2])
+    assert.equal(selectListView.element.querySelector('.selected').textContent, items[2].name)
+    await selectListView.confirmSelection()
+    assert.deepEqual(selectionConfirmEvents, [items[2]])
+
+    selectListView.reset()
+    await etch.getScheduler().getNextUpdatePromise()
+    assert.deepEqual(selectionChangeEvents, [items[0], items[2]])
+  })
+
   it('confirming an empty selection', async () => {
     let emptySelectionConfirmEventsCount = 0
     let selectionCancelEventsCount = 0
@@ -202,6 +252,51 @@ describe('SelectListView', () => {
     await selectListView.update({items: []})
     assert(selectListView.getSelectedItem() == null)
     assert.deepEqual(selectionChangeEvents, [items[0], undefined, items[0], items[3], undefined])
+
+    await selectListView.confirmSelection()
+    assert.deepEqual(selectionConfirmEvents, [items[3]])
+    assert.equal(emptySelectionConfirmEventsCount, 2)
+  })
+
+  it('confirming an empty selection when initial selection undefined', async () => {
+    let emptySelectionConfirmEventsCount = 0
+    let selectionCancelEventsCount = 0
+    const selectionConfirmEvents = []
+    const selectionChangeEvents = []
+    const items = ['Grace', 'John', 'Peter', '']
+    const selectListView = new SelectListView({
+      items,
+      elementForItem: (item) => createElementForItem(item),
+      initialSelectionIndex: undefined,
+      didChangeSelection: (item) => { selectionChangeEvents.push(item) },
+      didConfirmSelection: (item) => { selectionConfirmEvents.push(item) },
+      didConfirmEmptySelection: (item) => { emptySelectionConfirmEventsCount++ },
+      didCancelSelection: () => { selectionCancelEventsCount++ }
+    })
+    assert.deepEqual(selectionChangeEvents, [])
+
+    await selectListView.update({query: 'Peter'})
+    assert(selectListView.getSelectedItem() == null)
+    assert.deepEqual(selectionChangeEvents, [])
+
+    await selectListView.confirmSelection()
+    assert.deepEqual(selectionConfirmEvents, [])
+    assert.equal(selectionCancelEventsCount, 0)
+    assert.equal(emptySelectionConfirmEventsCount, 1)
+
+    selectListView.reset()
+    await etch.getScheduler().getNextUpdatePromise()
+    assert.deepEqual(selectionChangeEvents, [])
+
+    await selectListView.selectPrevious()
+    assert.deepEqual(selectionChangeEvents, [items[3]])
+    assert.equal(selectListView.getSelectedItem(), items[3])
+    await selectListView.confirmSelection()
+    assert.deepEqual(selectionConfirmEvents, [items[3]])
+
+    await selectListView.update({items: []})
+    assert(selectListView.getSelectedItem() == null)
+    assert.deepEqual(selectionChangeEvents, [items[3]])
 
     await selectListView.confirmSelection()
     assert.deepEqual(selectionConfirmEvents, [items[3]])

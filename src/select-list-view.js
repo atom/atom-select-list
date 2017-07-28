@@ -6,6 +6,9 @@ const fuzzaldrin = require('fuzzaldrin')
 module.exports = class SelectListView {
   constructor (props) {
     this.props = props
+    if (!this.props.hasOwnProperty('initialSelectionIndex')) {
+      this.props.initialSelectionIndex = 0
+    }
     this.computeItems(false)
     this.disposables = new CompositeDisposable()
     etch.initialize(this)
@@ -128,6 +131,10 @@ module.exports = class SelectListView {
       this.props.itemsClassList = props.itemsClassList
     }
 
+    if (props.hasOwnProperty('initialSelectionIndex')) {
+      this.props.initialSelectionIndex = props.initialSelectionIndex
+    }
+
     if (shouldComputeItems) {
       this.computeItems()
     }
@@ -231,7 +238,7 @@ module.exports = class SelectListView {
       this.items = this.items.slice(0, this.props.maxResults)
     }
 
-    this.selectIndex(0, updateComponent)
+    this.selectIndex(this.props.initialSelectionIndex, updateComponent)
   }
 
   fuzzyFilter (items, query) {
@@ -252,14 +259,17 @@ module.exports = class SelectListView {
   }
 
   getSelectedItem () {
+    if (this.selectionIndex === undefined) return null
     return this.items[this.selectionIndex]
   }
 
   selectPrevious () {
+    if (this.selectionIndex === undefined) return this.selectLast()
     return this.selectIndex(this.selectionIndex - 1)
   }
 
   selectNext () {
+    if (this.selectionIndex === undefined) return this.selectFirst()
     return this.selectIndex(this.selectionIndex + 1)
   }
 
@@ -271,6 +281,10 @@ module.exports = class SelectListView {
     return this.selectIndex(this.items.length - 1)
   }
 
+  selectNone () {
+    return this.selectIndex(undefined)
+  }
+
   selectIndex (index, updateComponent = true) {
     if (index >= this.items.length) {
       index = 0
@@ -279,7 +293,7 @@ module.exports = class SelectListView {
     }
 
     this.selectionIndex = index
-    if (this.props.didChangeSelection) {
+    if (index !== undefined && this.props.didChangeSelection) {
       this.props.didChangeSelection(this.getSelectedItem())
     }
 
