@@ -37,6 +37,14 @@ module.exports = class SelectListView {
     this.refs.queryEditor.setText('')
   }
 
+  setQueryText (value, isSelect = false) {
+    let queryEditor = this.refs.queryEditor;
+    queryEditor.setText(value);
+    if (isSelect) {
+      queryEditor.selectAll();
+    }
+  }
+
   destroy () {
     this.disposables.dispose()
     return etch.destroy(this)
