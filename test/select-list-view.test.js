@@ -374,7 +374,7 @@ describe('SelectListView', () => {
 
   describe('elementForItem', () => {
     it('passes whether the item is selected', async () => {
-      const elementForItem = sinon.stub().callsFake(() => document.createElement('div'))
+      const elementForItem = sandbox.stub().callsFake(() => document.createElement('div'))
       const selectListView = new SelectListView({
         items: ['foo', 'bar'],
         elementForItem,
@@ -385,7 +385,7 @@ describe('SelectListView', () => {
     })
 
     it('passes the item\'s index', () => {
-      const elementForItem = sinon.stub().callsFake(() => document.createElement('div'))
+      const elementForItem = sandbox.stub().callsFake(() => document.createElement('div'))
       const selectListView = new SelectListView({
         items: ['foo', 'bar'],
         elementForItem,
