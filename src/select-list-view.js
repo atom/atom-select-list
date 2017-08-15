@@ -152,11 +152,15 @@ module.exports = class SelectListView {
       const className = ['list-group'].concat(this.props.itemsClassList || []).join(' ')
       return $.ol(
         {className, ref: 'items'},
-        ...this.items.map((item, index) => $(ListItemView, {
-          element: this.props.elementForItem(item),
-          selected: this.getSelectedItem() === item,
-          onclick: () => this.didClickItem(index)
-        }))
+        ...this.items.map((item, index) => {
+          const selected = this.getSelectedItem() === item
+
+          return $(ListItemView, {
+            element: this.props.elementForItem(item, {selected, index}),
+            selected,
+            onclick: () => this.didClickItem(index)
+          })
+        })
       )
     } else if (!this.props.loadingMessage && this.props.emptyMessage) {
       return $.span({ref: 'emptyMessage'}, this.props.emptyMessage)
