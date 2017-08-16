@@ -371,6 +371,30 @@ describe('SelectListView', () => {
     assert(!selectListView.refs.items.classList.contains('b'))
     assert(selectListView.refs.items.classList.contains('c'))
   })
+
+  describe('elementForItem', () => {
+    it('passes whether the item is selected', async () => {
+      const elementForItem = sandbox.stub().callsFake(() => document.createElement('div'))
+      const selectListView = new SelectListView({
+        items: ['foo', 'bar'],
+        elementForItem,
+      })
+
+      assert(elementForItem.calledWithMatch('foo', {selected: true}))
+      assert(elementForItem.calledWithMatch('bar', {selected: false}))
+    })
+
+    it('passes the item\'s index', () => {
+      const elementForItem = sandbox.stub().callsFake(() => document.createElement('div'))
+      const selectListView = new SelectListView({
+        items: ['foo', 'bar'],
+        elementForItem,
+      })
+
+      assert(elementForItem.calledWithMatch('foo', {index: 0}))
+      assert(elementForItem.calledWithMatch('bar', {index: 1}))
+    })
+  })
 })
 
 function createElementForItem (item) {
