@@ -371,6 +371,28 @@ describe('SelectListView', () => {
     assert(!selectListView.refs.items.classList.contains('b'))
     assert(selectListView.refs.items.classList.contains('c'))
   })
+
+  it('set query', async () => {
+    let selectListView = new SelectListView({
+      itemsClassList: [], items: [],
+      elementForItem: (i) => document.createElement('li')
+    })
+    selectListView.setQuery('test q')
+    assert.equal(selectListView.getQuery(), 'test q')
+    assert.equal(selectListView.refs.queryEditor.getSelectedText(), '')
+    //
+    selectListView.setQuery('test q2', {selectText: true})
+    assert.equal(selectListView.getQuery(), 'test q2')
+    assert.equal(selectListView.refs.queryEditor.getSelectedText(), 'test q2')
+    //
+    selectListView.setQuery('test q3', {selectText: false})
+    assert.equal(selectListView.getQuery(), 'test q3')
+    assert.equal(selectListView.refs.queryEditor.getSelectedText(), '')
+    //
+    selectListView.setQuery('')
+    assert.equal(selectListView.getQuery(), '')
+    assert.equal(selectListView.refs.queryEditor.getSelectedText(), '')
+  })
 })
 
 function createElementForItem (item) {
