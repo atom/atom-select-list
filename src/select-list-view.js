@@ -2,7 +2,6 @@ const {Disposable, CompositeDisposable, TextEditor} = require('atom')
 const etch = require('etch')
 const $ = etch.dom
 const fuzzaldrin = require('fuzzaldrin')
-const path = require('path')
 
 module.exports = class SelectListView {
   constructor (props) {
