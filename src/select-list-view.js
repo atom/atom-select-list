@@ -346,7 +346,7 @@ class ListItemView {
     event.preventDefault()
   }
 
-  mouseUp () {
+  mouseUp (event) {
     event.preventDefault()
   }
 
