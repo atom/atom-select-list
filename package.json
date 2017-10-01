@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "etch": "^0.9.5",
-    "fuzzaldrin": "^2.1.0"
+    "fuzzaldrin-plus": "^0.5.0"
   },
   "repository": {
     "type": "git",
