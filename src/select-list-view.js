@@ -2,7 +2,6 @@ const {Disposable, CompositeDisposable, TextEditor} = require('atom')
 const etch = require('etch')
 const $ = etch.dom
 const fuzzaldrin = require('fuzzaldrin-plus')
-const path = require('path')
 
 module.exports = class SelectListView {
   constructor (props) {
@@ -346,7 +345,7 @@ class ListItemView {
     event.preventDefault()
   }
 
-  mouseUp () {
+  mouseUp (event) {
     event.preventDefault()
   }
 
