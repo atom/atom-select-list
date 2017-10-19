@@ -43,9 +43,9 @@ module.exports = class SelectListView {
     if (selectText) {
       queryEditor.selectAll()
     } else {
-      let lastSel = queryEditor.getLastSelection();
+      let lastSel = queryEditor.getLastSelection()
       if (lastSel) {
-        lastSel.clear();
+        lastSel.clear()
       }
     }
   }
