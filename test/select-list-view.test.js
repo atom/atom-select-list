@@ -372,6 +372,23 @@ describe('SelectListView', () => {
     assert(selectListView.refs.items.classList.contains('c'))
   })
 
+  it('allows the scheduler to be accessed', async () => {
+    const items = [{name: 'Grace'}, {name: 'John'}, {name: 'Peter'}]
+    const selectListView = new SelectListView({
+      items,
+      elementForItem: (item) => createElementForItem(item)
+    })
+    containerNode.appendChild(selectListView.element)
+    assert.equal(selectListView.refs.items.innerText, 'Grace\nJohn\nPeter')
+
+    items.pop()
+    const promise = selectListView.update({items})
+    assert.equal(SelectListView.getScheduler().getNextUpdatePromise(), promise)
+
+    await promise
+    assert.equal(selectListView.refs.items.innerText, 'Grace\nJohn')
+  })
+
   describe('elementForItem', () => {
     it('passes whether the item is selected', async () => {
       const elementForItem = sandbox.stub().callsFake(() => document.createElement('div'))

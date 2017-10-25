@@ -4,6 +4,14 @@ const $ = etch.dom
 const fuzzaldrin = require('fuzzaldrin-plus')
 
 module.exports = class SelectListView {
+  static setScheduler (scheduler) {
+    etch.setScheduler(scheduler)
+  }
+
+  static getScheduler (scheduler) {
+    return etch.getScheduler()
+  }
+
   constructor (props) {
     this.props = props
     this.computeItems(false)
