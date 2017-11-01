@@ -183,10 +183,7 @@ module.exports = class SelectListView {
         ...visibleItems.map((item, index) => {
           const selected = this.getSelectedItem() === item
           return $(ListItemView, {
-            element: this.props.elementForItem(item, {
-              selected,
-              index
-            }),
+            element: this.props.elementForItem(item, {selected, index}),
             selected,
             onclick: () => this.didClickItem(index)
           })
