@@ -136,6 +136,10 @@ module.exports = class SelectListView {
       this.props.itemsClassList = props.itemsClassList
     }
 
+    if (props.hasOwnProperty('renderAheadMargin')) {
+      this.props.renderAheadMargin = props.renderAheadMargin
+    }
+
     if (shouldComputeItems) {
       this.computeItems()
     }
@@ -157,22 +161,42 @@ module.exports = class SelectListView {
   renderItems () {
     if (this.items.length > 0) {
       const className = ['list-group'].concat(this.props.itemsClassList || []).join(' ')
-      return $.ol(
-        {className, ref: 'items'},
-        ...this.items.map((item, index) => {
-          const selected = this.getSelectedItem() === item
+      const shouldRenderAhead = !!this.props.renderAheadMargin
+      let visibleItems = this.items;
 
+      if (shouldRenderAhead) {
+        const margins = this.props.renderAheadMargin
+        let visibleStart = this.selectionIndex - margins
+        let visibleEnd = this.selectionIndex + margins
+        if(visibleStart < 0) {
+          visibleStart = 0
+        }
+        if(visibleEnd > this.items.length) {
+          visibleEnd = this.items.length
+        }
+        visibleItems = this.items.slice(visibleStart, visibleEnd)
+      }
+
+      const style = shouldRenderAhead? {'overflow':'hidden'}: undefined
+      const visibleItemElements = $.ol(
+        {className, ref: 'items', style},
+        ...visibleItems.map((item, index) => {
+          const selected = this.getSelectedItem() === item
           return $(ListItemView, {
-            element: this.props.elementForItem(item, {selected, index}),
+            element: this.props.elementForItem(item, {
+              selected,
+              index
+            }),
             selected,
             onclick: () => this.didClickItem(index)
           })
         })
       )
+      return visibleItemElements
     } else if (!this.props.loadingMessage && this.props.emptyMessage) {
-      return $.span({ref: 'emptyMessage'}, this.props.emptyMessage)
+        return $.span({ref: 'emptyMessage'}, this.props.emptyMessage)
     } else {
-      return ""
+        return ""
     }
   }
 
