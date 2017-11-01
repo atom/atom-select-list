@@ -194,9 +194,9 @@ module.exports = class SelectListView {
       )
       return visibleItemElements
     } else if (!this.props.loadingMessage && this.props.emptyMessage) {
-        return $.span({ref: 'emptyMessage'}, this.props.emptyMessage)
+      return $.span({ref: 'emptyMessage'}, this.props.emptyMessage)
     } else {
-        return ""
+      return ""
     }
   }
 
