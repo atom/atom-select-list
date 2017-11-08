@@ -188,7 +188,6 @@ module.exports = class SelectListView {
         visibleItems = this.items.slice(visibleStart, visibleEnd)
       }
 
-      const scrollType = this.isScrolled? 'auto': 'hidden'
       const style = this.isScrolled? undefined: {'overflow': 'hidden'}
       const onwheel = this.isScrolled? undefined : () => {this.setScroll(true)}
       const visibleItemElements = $.ol(
