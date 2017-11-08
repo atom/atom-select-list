@@ -164,9 +164,10 @@ module.exports = class SelectListView {
       const shouldRenderAhead = !!this.props.renderAheadMargin
       let visibleItems = this.items;
 
+      let visibleStart = 0
       if (shouldRenderAhead) {
         const margins = this.props.renderAheadMargin
-        let visibleStart = this.selectionIndex - margins
+        visibleStart = this.selectionIndex - margins
         let visibleEnd = this.selectionIndex + margins
         if(visibleStart < 0) {
           visibleStart = 0
@@ -181,11 +182,12 @@ module.exports = class SelectListView {
       const visibleItemElements = $.ol(
         {className, ref: 'items', style},
         ...visibleItems.map((item, index) => {
+          const actualIndex = visibleStart + index
           const selected = this.getSelectedItem() === item
           return $(ListItemView, {
             element: this.props.elementForItem(item, {selected, index}),
             selected,
-            onclick: () => this.didClickItem(index)
+            onclick: () => this.didClickItem(actualIndex)
           })
         })
       )
