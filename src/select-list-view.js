@@ -15,6 +15,7 @@ module.exports = class SelectListView {
   constructor (props) {
     this.props = props
     this.computeItems(false)
+    this.setScroll(true)
     this.disposables = new CompositeDisposable()
     etch.initialize(this)
     this.element.classList.add('select-list')
@@ -52,10 +53,12 @@ module.exports = class SelectListView {
   registerAtomCommands () {
     return global.atom.commands.add(this.element, {
       'core:move-up': (event) => {
+        this.setScroll(false)
         this.selectPrevious()
         event.stopPropagation()
       },
       'core:move-down': (event) => {
+        this.setScroll(false)
         this.selectNext()
         event.stopPropagation()
       },
@@ -158,6 +161,13 @@ module.exports = class SelectListView {
     )
   }
 
+  setScroll (isScrolled) {
+    if(this.isScrolled !== isScrolled) {
+      this.isScrolled = isScrolled
+      this.update()
+    }
+  }
+
   renderItems () {
     if (this.items.length > 0) {
       const className = ['list-group'].concat(this.props.itemsClassList || []).join(' ')
@@ -165,7 +175,7 @@ module.exports = class SelectListView {
       let visibleItems = this.items;
 
       let visibleStart = 0
-      if (shouldRenderAhead) {
+      if (shouldRenderAhead && !this.isScrolled) {
         const margins = this.props.renderAheadMargin
         visibleStart = this.selectionIndex - margins
         let visibleEnd = this.selectionIndex + margins
@@ -178,9 +188,11 @@ module.exports = class SelectListView {
         visibleItems = this.items.slice(visibleStart, visibleEnd)
       }
 
-      const style = shouldRenderAhead? {'overflow':'hidden'}: undefined
+      const scrollType = this.isScrolled? 'auto': 'hidden'
+      const style = this.isScrolled? undefined: {'overflow': 'hidden'}
+      const onwheel = this.isScrolled? undefined : () => {this.setScroll(true)}
       const visibleItemElements = $.ol(
-        {className, ref: 'items', style},
+        {className, ref: 'items', style, onwheel},
         ...visibleItems.map((item, index) => {
           const actualIndex = visibleStart + index
           const selected = this.getSelectedItem() === item
