@@ -15,7 +15,7 @@ module.exports = class SelectListView {
   constructor (props) {
     this.props = props
     this.computeItems(false)
-    this.setScroll(true)
+    this.shouldOptimize = false
     this.disposables = new CompositeDisposable()
     etch.initialize(this)
     this.element.classList.add('select-list')
@@ -53,13 +53,13 @@ module.exports = class SelectListView {
   registerAtomCommands () {
     return global.atom.commands.add(this.element, {
       'core:move-up': (event) => {
-        this.setScroll(false)
         this.selectPrevious()
+        this.shouldOptimize = !this.mouseIn
         event.stopPropagation()
       },
       'core:move-down': (event) => {
-        this.setScroll(false)
         this.selectNext()
+        this.shouldOptimize = !this.mouseIn
         event.stopPropagation()
       },
       'core:move-to-top': (event) => {
@@ -161,9 +161,9 @@ module.exports = class SelectListView {
     )
   }
 
-  setScroll (isScrolled) {
-    if(this.isScrolled !== isScrolled) {
-      this.isScrolled = isScrolled
+  setOptimizeState (shouldOptimize) {
+    if(this.shouldOptimize !== shouldOptimize) {
+      this.shouldOptimize = shouldOptimize
       this.update()
     }
   }
@@ -175,7 +175,7 @@ module.exports = class SelectListView {
       let visibleItems = this.items;
 
       let visibleStart = 0
-      if (shouldRenderAhead && !this.isScrolled) {
+      if (shouldRenderAhead && this.shouldOptimize) {
         const margins = this.props.renderAheadMargin
         visibleStart = this.selectionIndex - margins
         let visibleEnd = this.selectionIndex + margins
@@ -188,10 +188,11 @@ module.exports = class SelectListView {
         visibleItems = this.items.slice(visibleStart, visibleEnd)
       }
 
-      const style = this.isScrolled? undefined: {'overflow': 'hidden'}
-      const onwheel = this.isScrolled? undefined : () => {this.setScroll(true)}
+      const style = this.shouldOptimize? {'overflow': 'hidden'}: undefined
+      const onmouseenter = () => {this.setOptimizeState(false); this.mouseIn = true}
+      const onmouseleave = () => {this.mouseIn = false}
       const visibleItemElements = $.ol(
-        {className, ref: 'items', style, onwheel},
+        {className, ref: 'items', style, onmouseenter, onmouseleave},
         ...visibleItems.map((item, index) => {
           const actualIndex = visibleStart + index
           const selected = this.getSelectedItem() === item
