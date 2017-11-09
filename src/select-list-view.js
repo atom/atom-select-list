@@ -15,7 +15,7 @@ module.exports = class SelectListView {
   constructor (props) {
     this.props = props
     this.computeItems(false)
-    this.shouldOptimize = false
+    this.itemElements = []
     this.disposables = new CompositeDisposable()
     etch.initialize(this)
     this.element.classList.add('select-list')
@@ -54,12 +54,10 @@ module.exports = class SelectListView {
     return global.atom.commands.add(this.element, {
       'core:move-up': (event) => {
         this.selectPrevious()
-        this.shouldOptimize = !this.mouseIn
         event.stopPropagation()
       },
       'core:move-down': (event) => {
         this.selectNext()
-        this.shouldOptimize = !this.mouseIn
         event.stopPropagation()
       },
       'core:move-to-top': (event) => {
@@ -139,10 +137,6 @@ module.exports = class SelectListView {
       this.props.itemsClassList = props.itemsClassList
     }
 
-    if (props.hasOwnProperty('renderAheadMargin')) {
-      this.props.renderAheadMargin = props.renderAheadMargin
-    }
-
     if (shouldComputeItems) {
       this.computeItems()
     }
@@ -161,49 +155,56 @@ module.exports = class SelectListView {
     )
   }
 
-  setOptimizeState (shouldOptimize) {
-    if(this.shouldOptimize !== shouldOptimize) {
-      this.shouldOptimize = shouldOptimize
-      this.update()
+  getRefreshedItems() {
+    let visibleItems = this.items
+    let visibleStart = 0
+    let visibleEnd = this.items.length
+
+    if(this.items.length !== this.itemElements.length) {
+      this.itemElements = []
     }
+
+    if (this.itemElements.length > 0) {
+      const margins = 10
+      visibleStart = this.selectionIndex - margins
+      visibleEnd = this.selectionIndex + margins
+      if(visibleStart < 0) {
+        visibleStart = 0
+      }
+      if(visibleEnd > this.items.length) {
+        visibleEnd = this.items.length
+      }
+      visibleItems = this.items.slice(visibleStart, visibleEnd)
+    }
+
+    this.itemElements = Array.prototype.concat.apply(
+      [],
+      [
+        this.itemElements.slice(0, visibleStart),
+        visibleItems.map((item, index) => {
+          const actualIndex = visibleStart + index
+          const selected = this.getSelectedItem() === item
+          return $(ListItemView, {
+            element: this.props.elementForItem(item, {selected, index: actualIndex}),
+            selected,
+            onclick: () => this.didClickItem(actualIndex)
+          })
+        }),
+        this.itemElements.slice(visibleEnd)
+      ]
+    )
+
+    return this.itemElements
   }
 
   renderItems () {
     if (this.items.length > 0) {
       const className = ['list-group'].concat(this.props.itemsClassList || []).join(' ')
-      const shouldRenderAhead = !!this.props.renderAheadMargin
-      let visibleItems = this.items;
 
-      let visibleStart = 0
-      if (shouldRenderAhead && this.shouldOptimize) {
-        const margins = this.props.renderAheadMargin
-        visibleStart = this.selectionIndex - margins
-        let visibleEnd = this.selectionIndex + margins
-        if(visibleStart < 0) {
-          visibleStart = 0
-        }
-        if(visibleEnd > this.items.length) {
-          visibleEnd = this.items.length
-        }
-        visibleItems = this.items.slice(visibleStart, visibleEnd)
-      }
-
-      const style = this.shouldOptimize? {'overflow': 'hidden'}: undefined
-      const onmouseenter = () => {this.setOptimizeState(false); this.mouseIn = true}
-      const onmouseleave = () => {this.mouseIn = false}
-      const visibleItemElements = $.ol(
-        {className, ref: 'items', style, onmouseenter, onmouseleave},
-        ...visibleItems.map((item, index) => {
-          const actualIndex = visibleStart + index
-          const selected = this.getSelectedItem() === item
-          return $(ListItemView, {
-            element: this.props.elementForItem(item, {selected, index}),
-            selected,
-            onclick: () => this.didClickItem(actualIndex)
-          })
-        })
+      return $.ol(
+        {className, ref: 'items'},
+        ...this.getRefreshedItems()
       )
-      return visibleItemElements
     } else if (!this.props.loadingMessage && this.props.emptyMessage) {
       return $.span({ref: 'emptyMessage'}, this.props.emptyMessage)
     } else {
