@@ -36,6 +36,45 @@ describe('SelectListView', () => {
     assert(!selectListView.element.parentElement)
   })
 
+  it('only renders items when necessary', async () => {
+    const items = Array(100).fill('list item').map((_, i) => i)
+    const elementForItem = sinon.spy((item, {selected, index}) => {
+      const element = document.createElement('li')
+      element.style.height = '10px'
+      element.className = 'item'
+      element.textContent = `${index}`
+      return element
+    })
+    const margin = 3 // should match the margin in the SelectListView
+
+    const selectListView = new SelectListView({
+      items,
+      elementForItem
+    })
+
+    items.forEach(i => assert(elementForItem.calledWithMatch(i)))
+    elementForItem.reset()
+
+    Array(3*margin).fill('').forEach(async () => await selectListView.selectNext())
+    assert(selectListView.selectionIndex >= 2*margin)
+
+    elementForItem.reset()
+    await selectListView.selectNext()
+    assert(elementForItem.callCount === (2*margin))
+
+    const firstVisibleIndex = selectListView.selectionIndex - margin
+    const lastVisibleIndex = selectListView.selectionIndex + margin
+
+    const firstItems = items.slice(0, firstVisibleIndex)
+    const middleItems = items.slice(firstVisibleIndex, lastVisibleIndex)
+    const lastItems = items.slice(lastVisibleIndex)
+
+    firstItems.forEach(i => assert(elementForItem.neverCalledWithMatch(i)))
+    middleItems.forEach(i => assert(elementForItem.calledWithMatch(i)))
+    lastItems.forEach(i => assert(elementForItem.neverCalledWithMatch(i)))
+
+  })
+
   it('focus', async () => {
     let cancelSelectionEventsCount = 0
     const selectListView = new SelectListView({

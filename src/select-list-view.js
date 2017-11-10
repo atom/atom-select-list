@@ -165,7 +165,7 @@ module.exports = class SelectListView {
     }
 
     if (this.itemElements.length > 0) {
-      const margins = 10
+      const margins = 3
       visibleStart = this.selectionIndex - margins
       visibleEnd = this.selectionIndex + margins
       if(visibleStart < 0) {
