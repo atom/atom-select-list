@@ -15,7 +15,6 @@ module.exports = class SelectListView {
   constructor (props) {
     this.props = props
     this.computeItems(false)
-    this.itemElements = []
     this.disposables = new CompositeDisposable()
     etch.initialize(this)
     this.element.classList.add('select-list')
@@ -155,55 +154,43 @@ module.exports = class SelectListView {
     )
   }
 
-  getRefreshedItems() {
-    let visibleItems = this.items
-    let visibleStart = 0
-    let visibleEnd = this.items.length
-
-    if(this.items.length !== this.itemElements.length) {
-      this.itemElements = []
-    }
-
-    if (this.itemElements.length > 0) {
-      const margins = 3
-      visibleStart = this.selectionIndex - margins
-      visibleEnd = this.selectionIndex + margins
-      if(visibleStart < 0) {
-        visibleStart = 0
-      }
-      if(visibleEnd > this.items.length) {
-        visibleEnd = this.items.length
-      }
-      visibleItems = this.items.slice(visibleStart, visibleEnd)
-    }
-
-    this.itemElements = Array.prototype.concat.apply(
-      [],
-      [
-        this.itemElements.slice(0, visibleStart),
-        visibleItems.map((item, index) => {
-          const actualIndex = visibleStart + index
-          const selected = this.getSelectedItem() === item
-          return $(ListItemView, {
-            element: this.props.elementForItem(item, {selected, index: actualIndex}),
-            selected,
-            onclick: () => this.didClickItem(actualIndex)
-          })
-        }),
-        this.itemElements.slice(visibleEnd)
-      ]
-    )
-
-    return this.itemElements
-  }
-
   renderItems () {
     if (this.items.length > 0) {
+      if(!this.itemElementsPlain || this.itemElementsPlain && this.itemElementsPlain.size !== this.items.length) {
+        this.itemElementsPlain = new Map(this.items.map((item, index) => {
+          const actualIndex = this.items.indexOf(item)
+          return [item, $(ListItemView, {
+            element: this.props.elementForItem(item, {selected: false, actualIndex}),
+            selected: false,
+            onclick: () => {
+              this.selectItem(item)
+              this.confirmSelection()
+            }
+          })]
+        }))
+        this.itemElementsSelected = new Map(this.items.map((item, index) => {
+          const actualIndex = this.items.indexOf(item)
+          return [item, $(ListItemView, {
+            element: this.props.elementForItem(item, {selected: true, index: actualIndex}),
+            selected: true,
+            onclick: () => {
+              this.selectItem(item)
+              this.confirmSelection()
+            }
+          })]
+        }))
+      }
+
       const className = ['list-group'].concat(this.props.itemsClassList || []).join(' ')
 
       return $.ol(
         {className, ref: 'items'},
-        ...this.getRefreshedItems()
+        ...this.items.map(item => {
+          if(this.getSelectedItem() === item){
+            return this.itemElementsSelected.get(item)
+          }
+          return this.itemElementsPlain.get(item)
+        })
       )
     } else if (!this.props.loadingMessage && this.props.emptyMessage) {
       return $.span({ref: 'emptyMessage'}, this.props.emptyMessage)
