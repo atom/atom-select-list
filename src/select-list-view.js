@@ -158,9 +158,8 @@ module.exports = class SelectListView {
     if (this.items.length > 0) {
       if(!this.itemElementsPlain || this.itemElementsPlain && this.itemElementsPlain.size !== this.items.length) {
         this.itemElementsPlain = new Map(this.items.map((item, index) => {
-          const actualIndex = this.items.indexOf(item)
           return [item, $(ListItemView, {
-            element: this.props.elementForItem(item, {selected: false, actualIndex}),
+            element: this.props.elementForItem(item, {selected: false, index}),
             selected: false,
             onclick: () => {
               this.selectItem(item)
@@ -169,9 +168,8 @@ module.exports = class SelectListView {
           })]
         }))
         this.itemElementsSelected = new Map(this.items.map((item, index) => {
-          const actualIndex = this.items.indexOf(item)
           return [item, $(ListItemView, {
-            element: this.props.elementForItem(item, {selected: true, index: actualIndex}),
+            element: this.props.elementForItem(item, {selected: true, index}),
             selected: true,
             onclick: () => {
               this.selectItem(item)
