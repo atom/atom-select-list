@@ -1,6 +1,6 @@
 {
   "name": "atom-select-list",
-  "version": "0.2.0",
+  "version": "0.4.0",
   "description": "A general-purpose select list for use in Atom packages",
   "main": "./src/select-list-view.js",
   "scripts": {
@@ -14,7 +14,7 @@
     "sinon": "^2.1.0"
   },
   "dependencies": {
-    "etch": "^0.9.5",
+    "etch": "^0.12.6",
     "fuzzaldrin": "^2.1.0"
   },
   "repository": {

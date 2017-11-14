@@ -2,11 +2,21 @@ const {Disposable, CompositeDisposable, TextEditor} = require('atom')
 const etch = require('etch')
 const $ = etch.dom
 const fuzzaldrin = require('fuzzaldrin')
-const path = require('path')
 
 module.exports = class SelectListView {
+  static setScheduler (scheduler) {
+    etch.setScheduler(scheduler)
+  }
+
+  static getScheduler (scheduler) {
+    return etch.getScheduler()
+  }
+
   constructor (props) {
     this.props = props
+    if (!this.props.hasOwnProperty('initialSelectionIndex')) {
+      this.props.initialSelectionIndex = 0
+    }
     this.computeItems(false)
     this.disposables = new CompositeDisposable()
     etch.initialize(this)
@@ -137,6 +147,10 @@ module.exports = class SelectListView {
       this.props.itemsClassList = props.itemsClassList
     }
 
+    if (props.hasOwnProperty('initialSelectionIndex')) {
+      this.props.initialSelectionIndex = props.initialSelectionIndex
+    }
+
     if (shouldComputeItems) {
       this.computeItems()
     }
@@ -160,11 +174,15 @@ module.exports = class SelectListView {
       const className = ['list-group'].concat(this.props.itemsClassList || []).join(' ')
       return $.ol(
         {className, ref: 'items'},
-        ...this.items.map((item, index) => $(ListItemView, {
-          element: this.props.elementForItem(item),
-          selected: this.getSelectedItem() === item,
-          onclick: () => this.didClickItem(index)
-        }))
+        ...this.items.map((item, index) => {
+          const selected = this.getSelectedItem() === item
+
+          return $(ListItemView, {
+            element: this.props.elementForItem(item, {selected, index}),
+            selected,
+            onclick: () => this.didClickItem(index)
+          })
+        })
       )
     } else if (!this.props.loadingMessage && this.props.emptyMessage) {
       return $.span({ref: 'emptyMessage'}, this.props.emptyMessage)
@@ -236,7 +254,7 @@ module.exports = class SelectListView {
       this.items = this.items.slice(0, this.props.maxResults)
     }
 
-    this.selectIndex(0, updateComponent)
+    this.selectIndex(this.props.initialSelectionIndex, updateComponent)
   }
 
   fuzzyFilter (items, query) {
@@ -257,14 +275,17 @@ module.exports = class SelectListView {
   }
 
   getSelectedItem () {
+    if (this.selectionIndex === undefined) return null
     return this.items[this.selectionIndex]
   }
 
   selectPrevious () {
+    if (this.selectionIndex === undefined) return this.selectLast()
     return this.selectIndex(this.selectionIndex - 1)
   }
 
   selectNext () {
+    if (this.selectionIndex === undefined) return this.selectFirst()
     return this.selectIndex(this.selectionIndex + 1)
   }
 
@@ -276,6 +297,10 @@ module.exports = class SelectListView {
     return this.selectIndex(this.items.length - 1)
   }
 
+  selectNone () {
+    return this.selectIndex(undefined)
+  }
+
   selectIndex (index, updateComponent = true) {
     if (index >= this.items.length) {
       index = 0
@@ -284,7 +309,7 @@ module.exports = class SelectListView {
     }
 
     this.selectionIndex = index
-    if (this.props.didChangeSelection) {
+    if (index !== undefined && this.props.didChangeSelection) {
       this.props.didChangeSelection(this.getSelectedItem())
     }
 
@@ -350,7 +375,7 @@ class ListItemView {
     event.preventDefault()
   }
 
-  mouseUp () {
+  mouseUp (event) {
     event.preventDefault()
   }
 
