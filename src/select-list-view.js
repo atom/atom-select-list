@@ -37,19 +37,6 @@ module.exports = class SelectListView {
     this.refs.queryEditor.setText('')
   }
 
-  setQuery (text, {selectText} = {}) {
-    let queryEditor = this.refs.queryEditor
-    queryEditor.setText(text)
-    if (selectText) {
-      queryEditor.selectAll()
-    } else {
-      let lastSel = queryEditor.getLastSelection()
-      if (lastSel) {
-        lastSel.clear()
-      }
-    }
-  }
-
   destroy () {
     this.disposables.dispose()
     return etch.destroy(this)
@@ -112,6 +99,14 @@ module.exports = class SelectListView {
       // don't need to recompute them again at the end of this function.
       this.refs.queryEditor.setText(props.query)
       shouldComputeItems = false
+    }
+
+    if (props.hasOwnProperty('selectQuery')) {
+      if (props.selectQuery) {
+        this.refs.queryEditor.selectAll()
+      } else {
+        this.refs.queryEditor.clearSelections()
+      }
     }
 
     if (props.hasOwnProperty('order')) {

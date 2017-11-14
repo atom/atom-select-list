@@ -377,21 +377,22 @@ describe('SelectListView', () => {
       itemsClassList: [], items: [],
       elementForItem: (i) => document.createElement('li')
     })
-    selectListView.setQuery('test q')
+
+    await selectListView.update({query: 'test q'})
     assert.equal(selectListView.getQuery(), 'test q')
     assert.equal(selectListView.refs.queryEditor.getSelectedText(), '')
-    //
-    selectListView.setQuery('test q2', {selectText: true})
+
+    await selectListView.update({query: 'test q2', selectQuery: true})
     assert.equal(selectListView.getQuery(), 'test q2')
     assert.equal(selectListView.refs.queryEditor.getSelectedText(), 'test q2')
-    //
-    selectListView.setQuery('test q3', {selectText: false})
+
+    await selectListView.update({query: 'test q3', selectQuery: false})
     assert.equal(selectListView.getQuery(), 'test q3')
     assert.equal(selectListView.refs.queryEditor.getSelectedText(), '')
-    //
-    selectListView.setQuery('')
-    assert.equal(selectListView.getQuery(), '')
-    assert.equal(selectListView.refs.queryEditor.getSelectedText(), '')
+
+    await selectListView.update({selectQuery: true})
+    assert.equal(selectListView.getQuery(), 'test q3')
+    assert.equal(selectListView.refs.queryEditor.getSelectedText(), 'test q3')
   })
 })
 
