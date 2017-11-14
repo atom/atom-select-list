@@ -111,6 +111,14 @@ module.exports = class SelectListView {
       shouldComputeItems = false
     }
 
+    if (props.hasOwnProperty('selectQuery')) {
+      if (props.selectQuery) {
+        this.refs.queryEditor.selectAll()
+      } else {
+        this.refs.queryEditor.clearSelections()
+      }
+    }
+
     if (props.hasOwnProperty('order')) {
       this.props.order = props.order
     }

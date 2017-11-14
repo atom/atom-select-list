@@ -42,6 +42,7 @@ When creating a new instance of a select list, or when calling `update` on an ex
 * (Optional) `filterKeyForItem: (item: Object) -> String`: when `filter` is not provided, this function will be called to retrieve a string property on each item and that will be used to filter them.
 * (Optional) `filterQuery: (query: String) -> String`: a function that allows to apply a transformation to the user query and whose return value will be used to filter items.
 * (Optional) `query: String`: a string that will replace the contents of the query editor.
+* (Optional) `selectQuery: Boolean`: a boolean indicating whether the query text should be selected or not.
 * (Optional) `order: (item1: Object, item2: Object) -> Number`: a function that allows to change the order in which items are shown.
 * (Optional) `emptyMessage: String`: a string shown when the list is empty.
 * (Optional) `errorMessage: String`: a string that needs to be set when you want to notify the user that an error occurred.

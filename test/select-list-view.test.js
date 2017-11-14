@@ -507,6 +507,29 @@ describe('SelectListView', () => {
       assert(elementForItem.calledWithMatch('bar', {index: 1}))
     })
   })
+
+  it('changing and selecting the query', async () => {
+    let selectListView = new SelectListView({
+      itemsClassList: [], items: [],
+      elementForItem: (i) => document.createElement('li')
+    })
+
+    await selectListView.update({query: 'test q'})
+    assert.equal(selectListView.getQuery(), 'test q')
+    assert.equal(selectListView.refs.queryEditor.getSelectedText(), '')
+
+    await selectListView.update({query: 'test q2', selectQuery: true})
+    assert.equal(selectListView.getQuery(), 'test q2')
+    assert.equal(selectListView.refs.queryEditor.getSelectedText(), 'test q2')
+
+    await selectListView.update({query: 'test q3', selectQuery: false})
+    assert.equal(selectListView.getQuery(), 'test q3')
+    assert.equal(selectListView.refs.queryEditor.getSelectedText(), '')
+
+    await selectListView.update({selectQuery: true})
+    assert.equal(selectListView.getQuery(), 'test q3')
+    assert.equal(selectListView.refs.queryEditor.getSelectedText(), 'test q3')
+  })
 })
 
 function createElementForItem (item) {
