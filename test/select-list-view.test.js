@@ -36,6 +36,28 @@ describe('SelectListView', () => {
     assert(!selectListView.element.parentElement)
   })
 
+  it('only renders items when necessary', async () => {
+    const items = Array(100).fill('list item').map((_, i) => i)
+    const elementForItem = sinon.spy((item, {selected, index}) => {
+      const element = document.createElement('li')
+      element.style.height = '10px'
+      element.className = 'item'
+      element.textContent = `${index}`
+      return element
+    })
+
+    const selectListView = new SelectListView({
+      items,
+      elementForItem
+    })
+
+    items.forEach(i => assert(elementForItem.calledWithMatch(i)))
+
+    elementForItem.reset()
+    await selectListView.selectNext()
+    items.forEach(i => assert(elementForItem.neverCalledWithMatch(i)))
+  })
+
   it('focus', async () => {
     let cancelSelectionEventsCount = 0
     const selectListView = new SelectListView({

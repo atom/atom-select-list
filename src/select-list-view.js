@@ -171,17 +171,38 @@ module.exports = class SelectListView {
 
   renderItems () {
     if (this.items.length > 0) {
+      if(!this.itemElementsPlain || this.itemElementsPlain && this.itemElementsPlain.size !== this.items.length) {
+        this.itemElementsPlain = new Map(this.items.map((item, index) => {
+          return [item, $(ListItemView, {
+            element: this.props.elementForItem(item, {selected: false, index}),
+            selected: false,
+            onclick: () => {
+              this.selectItem(item)
+              this.confirmSelection()
+            }
+          })]
+        }))
+        this.itemElementsSelected = new Map(this.items.map((item, index) => {
+          return [item, $(ListItemView, {
+            element: this.props.elementForItem(item, {selected: true, index}),
+            selected: true,
+            onclick: () => {
+              this.selectItem(item)
+              this.confirmSelection()
+            }
+          })]
+        }))
+      }
+
       const className = ['list-group'].concat(this.props.itemsClassList || []).join(' ')
+
       return $.ol(
         {className, ref: 'items'},
-        ...this.items.map((item, index) => {
-          const selected = this.getSelectedItem() === item
-
-          return $(ListItemView, {
-            element: this.props.elementForItem(item, {selected, index}),
-            selected,
-            onclick: () => this.didClickItem(index)
-          })
+        ...this.items.map(item => {
+          if(this.getSelectedItem() === item){
+            return this.itemElementsSelected.get(item)
+          }
+          return this.itemElementsPlain.get(item)
         })
       )
     } else if (!this.props.loadingMessage && this.props.emptyMessage) {
