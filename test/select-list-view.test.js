@@ -506,6 +506,46 @@ describe('SelectListView', () => {
       assert(elementForItem.calledWithMatch('foo', {index: 0}))
       assert(elementForItem.calledWithMatch('bar', {index: 1}))
     })
+
+    it('called for old and new selected item only on keyboard navigation', async () => {
+      const props = {
+        items: ['Grace', 'John', 'Peter'],
+        elementForItem: createElementForItem
+      }
+      const spy = sinon.spy(props, "elementForItem")
+      const selectListView = new SelectListView(props)
+      containerNode.appendChild(selectListView.element)
+
+      assert.equal(selectListView.refs.items.innerText, 'Grace\nJohn\nPeter')
+      assert.equal(spy.callCount, 3)
+      assert(spy.calledWithExactly("Grace", {selected: true, index: 0, visible: true}))
+      assert(spy.calledWithExactly("John", {selected: false, index: 1, visible: true}))
+      assert(spy.calledWithExactly("Peter", {selected: false, index: 2, visible: true}))
+
+      spy.reset()
+      await selectListView.selectNext()
+      assert.equal(spy.callCount, 2)
+      assert(spy.calledWithExactly("Grace", {selected: false, index: 0, visible: true}))
+      assert(spy.calledWithExactly("John", {selected: true, index: 1, visible: true}))
+
+      spy.reset()
+      await selectListView.selectNext()
+      assert.equal(spy.callCount, 2)
+      assert(spy.calledWithExactly("John", {selected: false, index: 1, visible: true}))
+      assert(spy.calledWithExactly("Peter", {selected: true, index: 2, visible: true}))
+
+      spy.reset()
+      await selectListView.selectPrevious()
+      assert.equal(spy.callCount, 2)
+      assert(spy.calledWithExactly("John", {selected: true, index: 1, visible: true}))
+      assert(spy.calledWithExactly("Peter", {selected: false, index: 2, visible: true}))
+
+      spy.reset()
+      await selectListView.selectPrevious()
+      assert.equal(spy.callCount, 2)
+      assert(spy.calledWithExactly("Grace", {selected: true, index: 0, visible: true}))
+      assert(spy.calledWithExactly("John", {selected: false, index: 1, visible: true}))
+    })
   })
 
   it('changing and selecting the query', async () => {
@@ -529,6 +569,109 @@ describe('SelectListView', () => {
     await selectListView.update({selectQuery: true})
     assert.equal(selectListView.getQuery(), 'test q3')
     assert.equal(selectListView.refs.queryEditor.getSelectedText(), 'test q3')
+  })
+
+  describe('initiallyVisibleItemCount', () => {
+    let spy, items
+
+    const TIMEOUT = 100
+    const assertItemsBecomeVisible = async itemIndexes => {
+      spy.reset()
+      await new Promise(resolve => setTimeout(resolve, TIMEOUT))
+      assert.equal(spy.callCount, itemIndexes.length)
+      for (const index of itemIndexes) {
+        assert(spy.calledWithExactly(items[index], {selected: false, index, visible: true}))
+      }
+    }
+    createElementForItemSpyWithHeight = height => {
+      return sinon.spy((item, {selected, index, visible}) => {
+        const element = document.createElement('li')
+        element.textContent = item
+        element.style.height = height
+        element.className = 'item'
+        if (visible) element.classList.add("visible")
+        return element
+      })
+    }
+
+    beforeEach(() => {
+      items = []
+      for (let i = 0; i < 100; i++) items.push(String(i))
+    })
+
+    it('case-1: initially renders only specified number of items and renders others as they become visible', async () => {
+      spy = createElementForItemSpyWithHeight("30px")
+      const selectListView = new SelectListView({
+        items: items,
+        initiallyVisibleItemCount: 5,
+        initialSelectionIndex: undefined,
+        elementForItem: spy,
+      })
+      assert.equal(selectListView.element.querySelectorAll('.item').length, 100)
+      assert.equal(selectListView.element.querySelectorAll('.item.visible').length, 5)
+      selectListView.element.style.overflowY = 'auto'
+      selectListView.element.style.height = '150px'
+
+      containerNode.appendChild(selectListView.element)
+
+      const children = selectListView.refs.items.children
+      children[20].scrollIntoViewIfNeeded()
+      await assertItemsBecomeVisible([17, 18, 19, 20, 21, 22, 23])
+      children[50].scrollIntoViewIfNeeded()
+      await assertItemsBecomeVisible([47, 48, 49, 50, 51, 52, 53])
+      children[80].scrollIntoViewIfNeeded()
+      await assertItemsBecomeVisible([77, 78, 79, 80, 81, 82, 83])
+      children[90].scrollIntoViewIfNeeded()
+      await assertItemsBecomeVisible([87, 88, 89, 90, 91, 92, 93])
+
+      children[20].scrollIntoViewIfNeeded()
+      await assertItemsBecomeVisible([])
+      children[50].scrollIntoViewIfNeeded()
+      await assertItemsBecomeVisible([])
+      children[80].scrollIntoViewIfNeeded()
+      await assertItemsBecomeVisible([])
+      children[90].scrollIntoViewIfNeeded()
+      await assertItemsBecomeVisible([])
+      assert.equal(selectListView.element.querySelectorAll('.item').length, 100)
+      assert.equal(selectListView.element.querySelectorAll('.item.visible').length, 33)
+    })
+
+    it('case-2: initially renders only specified number of items and renders others as they become visible', async () => {
+      spy = createElementForItemSpyWithHeight("10px")
+      const selectListView = new SelectListView({
+        items: items,
+        initiallyVisibleItemCount: 5,
+        initialSelectionIndex: undefined,
+        elementForItem: spy,
+      })
+      assert.equal(selectListView.element.querySelectorAll('.item').length, 100)
+      assert.equal(selectListView.element.querySelectorAll('.item.visible').length, 5)
+      selectListView.element.style.overflowY = 'auto'
+      selectListView.element.style.height = '10px'
+
+      containerNode.appendChild(selectListView.element)
+
+      const children = selectListView.refs.items.children
+      children[20].scrollIntoViewIfNeeded()
+      await assertItemsBecomeVisible([19, 20, 21])
+      children[50].scrollIntoViewIfNeeded()
+      await assertItemsBecomeVisible([49, 50, 51])
+      children[80].scrollIntoViewIfNeeded()
+      await assertItemsBecomeVisible([79, 80, 81])
+      children[90].scrollIntoViewIfNeeded()
+      await assertItemsBecomeVisible([89, 90, 91])
+
+      children[20].scrollIntoViewIfNeeded()
+      await assertItemsBecomeVisible([])
+      children[50].scrollIntoViewIfNeeded()
+      await assertItemsBecomeVisible([])
+      children[80].scrollIntoViewIfNeeded()
+      await assertItemsBecomeVisible([])
+      children[90].scrollIntoViewIfNeeded()
+      await assertItemsBecomeVisible([])
+      assert.equal(selectListView.element.querySelectorAll('.item').length, 100)
+      assert.equal(selectListView.element.querySelectorAll('.item.visible').length, 17)
+    })
   })
 })
 
