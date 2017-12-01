@@ -17,6 +17,9 @@ module.exports = class SelectListView {
     if (!this.props.hasOwnProperty('initialSelectionIndex')) {
       this.props.initialSelectionIndex = 0
     }
+    if (props.initiallyVisibleItemCount) {
+      this.initializeVisibilityObserver()
+    }
     this.computeItems(false)
     this.disposables = new CompositeDisposable()
     etch.initialize(this)
@@ -29,6 +32,21 @@ module.exports = class SelectListView {
     const didLoseFocus = this.didLoseFocus.bind(this)
     editorElement.addEventListener('blur', didLoseFocus)
     this.disposables.add(new Disposable(() => { editorElement.removeEventListener('blur', didLoseFocus) }))
+  }
+
+  initializeVisibilityObserver () {
+    this.visibilityObserver = new IntersectionObserver(changes => {
+      // Since we observe fake items only, whenever it changes, just render to real item.
+      // No need to check change.intersectionRatio.
+      for (const change of changes) {
+        const element = change.target
+        this.visibilityObserver.unobserve(element)
+        const index = Array.from(this.refs.items.children).indexOf(element)
+        if (index >= 0) {
+          this.renderItemAtIndex(index)
+        }
+      }
+    })
   }
 
   focus () {
@@ -49,6 +67,7 @@ module.exports = class SelectListView {
 
   destroy () {
     this.disposables.dispose()
+    if (this.visibilityObserver) this.visibilityObserver.disconnect()
     return etch.destroy(this)
   }
 
@@ -172,17 +191,28 @@ module.exports = class SelectListView {
   renderItems () {
     if (this.items.length > 0) {
       const className = ['list-group'].concat(this.props.itemsClassList || []).join(' ')
-      return $.ol(
-        {className, ref: 'items'},
-        ...this.items.map((item, index) => {
-          const selected = this.getSelectedItem() === item
 
-          return $(ListItemView, {
-            element: this.props.elementForItem(item, {selected, index}),
-            selected,
-            onclick: () => this.didClickItem(index)
+      if (this.visibilityObserver) {
+        etch.getScheduler().updateDocument(() => {
+          Array.from(this.refs.items.children).slice(this.props.initiallyVisibleItemCount).forEach(element => {
+            this.visibilityObserver.observe(element)
           })
         })
+      }
+
+      this.listItems = this.items.map((item, index) => {
+        const selected = this.getSelectedItem() === item
+        const visible = !this.props.initiallyVisibleItemCount || index < this.props.initiallyVisibleItemCount
+        return $(ListItemView, {
+          element: this.props.elementForItem(item, {selected, index, visible}),
+          selected: selected,
+          onclick: () => this.didClickItem(index)
+        })
+      })
+
+      return $.ol(
+        {className, ref: 'items'},
+        ...this.listItems
       )
     } else if (!this.props.loadingMessage && this.props.emptyMessage) {
       return $.span({ref: 'emptyMessage'}, this.props.emptyMessage)
@@ -245,6 +275,8 @@ module.exports = class SelectListView {
   }
 
   computeItems (updateComponent) {
+    this.listItems = null
+    if (this.visibilityObserver) this.visibilityObserver.disconnect()
     const filterFn = this.props.filter || this.fuzzyFilter.bind(this)
     this.items = filterFn(this.props.items.slice(), this.getFilterQuery())
     if (this.props.order) {
@@ -279,6 +311,18 @@ module.exports = class SelectListView {
     return this.items[this.selectionIndex]
   }
 
+  renderItemAtIndex (index) {
+    const item = this.items[index]
+    const selected = this.getSelectedItem() === item
+    const component = this.listItems[index].component
+    if (this.visibilityObserver) this.visibilityObserver.unobserve(component.element)
+    component.update({
+      element: this.props.elementForItem(item, {selected, index, visible: true}),
+      selected: selected,
+      onclick: () => this.didClickItem(index)
+    })
+  }
+
   selectPrevious () {
     if (this.selectionIndex === undefined) return this.selectLast()
     return this.selectIndex(this.selectionIndex - 1)
@@ -308,13 +352,21 @@ module.exports = class SelectListView {
       index = this.items.length - 1
     }
 
+    const oldIndex = this.selectionIndex
+
     this.selectionIndex = index
     if (index !== undefined && this.props.didChangeSelection) {
       this.props.didChangeSelection(this.getSelectedItem())
     }
 
     if (updateComponent) {
-      return etch.update(this)
+      if (this.listItems) {
+        if (oldIndex >= 0) this.renderItemAtIndex(oldIndex)
+        if (index >= 0) this.renderItemAtIndex(index)
+        return etch.getScheduler().getNextUpdatePromise()
+      } else {
+        return etch.update(this)
+      }
     } else {
       return Promise.resolve()
     }
