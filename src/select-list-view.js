@@ -311,6 +311,13 @@ module.exports = class SelectListView {
     return this.items[this.selectionIndex]
   }
 
+  getItemForElement (element) {
+    if (element && this.refs.items) {
+      const index = Array.from(this.refs.items.children).indexOf(element)
+      if (index >= 0) return this.items[index]
+    }
+  }
+
   renderItemAtIndex (index) {
     const item = this.items[index]
     const selected = this.getSelectedItem() === item
