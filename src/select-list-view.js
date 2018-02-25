@@ -36,14 +36,14 @@ module.exports = class SelectListView {
 
   initializeVisibilityObserver () {
     this.visibilityObserver = new IntersectionObserver(changes => {
-      // Since we observe fake items only, whenever it changes, just render to real item.
-      // No need to check change.intersectionRatio.
       for (const change of changes) {
-        const element = change.target
-        this.visibilityObserver.unobserve(element)
-        const index = Array.from(this.refs.items.children).indexOf(element)
-        if (index >= 0) {
-          this.renderItemAtIndex(index)
+        if (change.intersectionRatio > 0) {
+          const element = change.target
+          this.visibilityObserver.unobserve(element)
+          const index = Array.from(this.refs.items.children).indexOf(element)
+          if (index >= 0) {
+            this.renderItemAtIndex(index)
+          }
         }
       }
     })

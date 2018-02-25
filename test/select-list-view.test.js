@@ -599,7 +599,7 @@ describe('SelectListView', () => {
       for (let i = 0; i < 100; i++) items.push(String(i))
     })
 
-    it('case-1: initially renders only specified number of items and renders others as they become visible', async () => {
+    it('[With height for 5 items]: initially renders only specified number of items and renders others as they become visible', async () => {
       spy = createElementForItemSpyWithHeight("30px")
       const selectListView = new SelectListView({
         items: items,
@@ -610,19 +610,19 @@ describe('SelectListView', () => {
       assert.equal(selectListView.element.querySelectorAll('.item').length, 100)
       assert.equal(selectListView.element.querySelectorAll('.item.visible').length, 5)
       selectListView.element.style.overflowY = 'auto'
-      selectListView.element.style.height = '150px'
+      selectListView.element.style.height = '150px' // 5 items height
 
       containerNode.appendChild(selectListView.element)
 
       const children = selectListView.refs.items.children
       children[20].scrollIntoViewIfNeeded()
-      await assertItemsBecomeVisible([17, 18, 19, 20, 21, 22, 23])
+      await assertItemsBecomeVisible([18, 19, 20, 21, 22])
       children[50].scrollIntoViewIfNeeded()
-      await assertItemsBecomeVisible([47, 48, 49, 50, 51, 52, 53])
+      await assertItemsBecomeVisible([48, 49, 50, 51, 52])
       children[80].scrollIntoViewIfNeeded()
-      await assertItemsBecomeVisible([77, 78, 79, 80, 81, 82, 83])
+      await assertItemsBecomeVisible([78, 79, 80, 81, 82])
       children[90].scrollIntoViewIfNeeded()
-      await assertItemsBecomeVisible([87, 88, 89, 90, 91, 92, 93])
+      await assertItemsBecomeVisible([88, 89, 90, 91, 92])
 
       children[20].scrollIntoViewIfNeeded()
       await assertItemsBecomeVisible([])
@@ -633,10 +633,10 @@ describe('SelectListView', () => {
       children[90].scrollIntoViewIfNeeded()
       await assertItemsBecomeVisible([])
       assert.equal(selectListView.element.querySelectorAll('.item').length, 100)
-      assert.equal(selectListView.element.querySelectorAll('.item.visible').length, 33)
+      assert.equal(selectListView.element.querySelectorAll('.item.visible').length, 25) // inital(5) + visible(20)
     })
 
-    it('case-2: initially renders only specified number of items and renders others as they become visible', async () => {
+    it('[With height for 1 item]: initially renders only specified number of items and renders others as they become visible', async () => {
       spy = createElementForItemSpyWithHeight("10px")
       const selectListView = new SelectListView({
         items: items,
@@ -647,19 +647,19 @@ describe('SelectListView', () => {
       assert.equal(selectListView.element.querySelectorAll('.item').length, 100)
       assert.equal(selectListView.element.querySelectorAll('.item.visible').length, 5)
       selectListView.element.style.overflowY = 'auto'
-      selectListView.element.style.height = '10px'
+      selectListView.element.style.height = '10px' // One item height
 
       containerNode.appendChild(selectListView.element)
 
       const children = selectListView.refs.items.children
       children[20].scrollIntoViewIfNeeded()
-      await assertItemsBecomeVisible([19, 20, 21])
+      await assertItemsBecomeVisible([20])
       children[50].scrollIntoViewIfNeeded()
-      await assertItemsBecomeVisible([49, 50, 51])
+      await assertItemsBecomeVisible([50])
       children[80].scrollIntoViewIfNeeded()
-      await assertItemsBecomeVisible([79, 80, 81])
+      await assertItemsBecomeVisible([80])
       children[90].scrollIntoViewIfNeeded()
-      await assertItemsBecomeVisible([89, 90, 91])
+      await assertItemsBecomeVisible([90])
 
       children[20].scrollIntoViewIfNeeded()
       await assertItemsBecomeVisible([])
@@ -670,7 +670,7 @@ describe('SelectListView', () => {
       children[90].scrollIntoViewIfNeeded()
       await assertItemsBecomeVisible([])
       assert.equal(selectListView.element.querySelectorAll('.item').length, 100)
-      assert.equal(selectListView.element.querySelectorAll('.item.visible').length, 17)
+      assert.equal(selectListView.element.querySelectorAll('.item.visible').length, 9) // inital(5) + visible(4)
     })
   })
 })
