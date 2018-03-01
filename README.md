@@ -54,10 +54,10 @@ When creating a new instance of a select list, or when calling `update` on an ex
 * (Optional) `loadingMessage: String`: a string that needs to be set when you are loading items in the background.
 * (Optional) `loadingBadge: String/Number`: a string or number that needs to be set when the progress status changes (e.g. a percentage showing how many items have been loaded so far).
 * (Optional) `itemsClassList: [String]`: an array of strings that will be added as class names to the items element.
-* (Optional) `initialSelectionIndex: Number`: the index of the item to initially select and automatically select after query changes; defaults to 0.
+* (Optional) `initialSelectionIndex: Number`: the index of the item to initially select and automatically select after query changes; defaults to `0`.
 * (Optional) `didChangeQuery: (query: String) -> Void`: a function that is called when the query changes.
 * (Optional) `didChangeSelection: (item: Object) -> Void`: a function that is called when the selected item changes.
-* (Optional) `didConfirmSelection: (item: Object) -> Void`: a function that is called when the user clicks or presses enter on an item.
+* (Optional) `didConfirmSelection: (item: Object) -> Void`: a function that is called when the user clicks or presses <kbd>Enter</kbd> on an item.
 * (Optional) `didConfirmEmptySelection: () -> Void`: a function that is called when the user presses <kbd>Enter</kbd> but the list is empty.
 * (Optional) `didCancelSelection: () -> Void`: a function that is called when the user presses <kbd>Esc</kbd> or the list loses focus.
 * (Optional) `initiallyVisibleItemCount: Number`: When this options was provided, `SelectList` observe visibility of items in viewport, visibility state is passed as `visible` option to `elementForItem`. This is mainly used to skip heavy computation for invisible items.
