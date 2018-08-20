@@ -31,6 +31,17 @@ module.exports = class SelectListView {
     const editorElement = this.refs.queryEditor.element
     const didLoseFocus = this.didLoseFocus.bind(this)
     editorElement.addEventListener('blur', didLoseFocus)
+
+    // When clicking the scrollbar of the items list, a blur event will be triggered
+    // on the query editor element, but we don't want to treat that as a cancellation.
+    // This mousedown listener allows us to detect this case and restore focus to the
+    // query editor. This is based on https://stackoverflow.com/a/1480178.
+    this.didClickItemsList = false
+    this.element.addEventListener('mousedown', event => {
+      if (event.target === this.refs.items) {
+        this.didClickItemsList = true
+      }
+    })
     this.disposables.add(new Disposable(() => { editorElement.removeEventListener('blur', didLoseFocus) }))
   }
 
@@ -54,7 +65,8 @@ module.exports = class SelectListView {
   }
 
   didLoseFocus (event) {
-    if (this.element.contains(event.relatedTarget)) {
+    if (this.didClickItemsList || this.element.contains(event.relatedTarget)) {
+      this.didClickItemsList = false
       this.refs.queryEditor.element.focus()
     } else if (document.hasFocus()) {
       this.cancelSelection()
