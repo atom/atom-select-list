@@ -549,9 +549,11 @@ describe('SelectListView', () => {
   })
 
   it('changing and selecting the query', async () => {
+    let didChangeQuerySpy = sinon.spy()
     let selectListView = new SelectListView({
       itemsClassList: [], items: [],
-      elementForItem: (i) => document.createElement('li')
+      elementForItem: (i) => document.createElement('li'),
+      didChangeQuery: (q) => didChangeQuerySpy(q)
     })
 
     await selectListView.update({query: 'test q'})
@@ -569,6 +571,18 @@ describe('SelectListView', () => {
     await selectListView.update({selectQuery: true})
     assert.equal(selectListView.getQuery(), 'test q3')
     assert.equal(selectListView.refs.queryEditor.getSelectedText(), 'test q3')
+
+    await selectListView.update({query: 'test q4'})
+    assert.equal(selectListView.getQuery(), 'test q4')
+    assert(didChangeQuerySpy.withArgs('test q4').calledOnce)
+
+    await selectListView.update({query: 'test q5', doDidChangeQuery: false})
+    assert.equal(selectListView.getQuery(), 'test q5')
+    assert(!didChangeQuerySpy.withArgs('test q5').called)
+
+    await selectListView.update({query: 'test q6', doDidChangeQuery: true})
+    assert.equal(selectListView.getQuery(), 'test q6')
+    assert(didChangeQuerySpy.withArgs('test q6').calledOnce)
   })
 
   describe('initiallyVisibleItemCount', () => {

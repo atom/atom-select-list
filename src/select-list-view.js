@@ -24,7 +24,7 @@ module.exports = class SelectListView {
     this.disposables = new CompositeDisposable()
     etch.initialize(this)
     this.element.classList.add('select-list')
-    this.disposables.add(this.refs.queryEditor.onDidChange(this.didChangeQuery.bind(this)))
+    this.didChangeQueryDisposable = this.refs.queryEditor.onDidChange(this.didChangeQuery.bind(this))
     if (!props.skipCommandsRegistration) {
       this.disposables.add(this.registerAtomCommands())
     }
@@ -79,6 +79,7 @@ module.exports = class SelectListView {
 
   destroy () {
     this.disposables.dispose()
+    this.didChangeQueryDisposable.dispose()
     if (this.visibilityObserver) this.visibilityObserver.disconnect()
     return etch.destroy(this)
   }
@@ -136,10 +137,19 @@ module.exports = class SelectListView {
     }
 
     if (props.hasOwnProperty('query')) {
+      const doDidChangeQuery = !props.hasOwnProperty('doDidChangeQuery') || props.doDidChangeQuery
+      if (!doDidChangeQuery) {
+        this.didChangeQueryDisposable.dispose()
+      }
+
       // Items will be recomputed as part of the change event handler, so we
       // don't need to recompute them again at the end of this function.
       this.refs.queryEditor.setText(props.query)
       shouldComputeItems = false
+
+      if (!doDidChangeQuery) {
+        this.didChangeQueryDisposable = this.refs.queryEditor.onDidChange(this.didChangeQuery.bind(this))
+      }
     }
 
     if (props.hasOwnProperty('selectQuery')) {
