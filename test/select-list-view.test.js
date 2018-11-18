@@ -548,6 +548,39 @@ describe('SelectListView', () => {
     })
   })
 
+  describe('getItemForElement', () => {
+    it('return source item of passed element', async () => {
+      const selectListView = new SelectListView({
+        items: [{name:'foo'}, {name: 'bar'}, {name: 'baz'}],
+        elementForItem: createElementForItem,
+      })
+      const elements = selectListView.element.querySelectorAll('.item')
+      assert.equal(selectListView.getItemForElement(elements[0]), selectListView.items[0])
+      assert.equal(selectListView.getItemForElement(elements[1]), selectListView.items[1])
+      assert.equal(selectListView.getItemForElement(elements[1]), selectListView.items[1])
+    })
+
+    it('return `undefined` when passed element was not found', async () => {
+      const selectListView = new SelectListView({
+        items: [{name:'foo'}, {name: 'bar'}, {name: 'baz'}],
+        elementForItem: createElementForItem,
+      })
+      const elements = selectListView.element.querySelectorAll('.item')
+      assert.equal(selectListView.getItemForElement(undefined), undefined)
+      assert.equal(selectListView.getItemForElement(null), undefined)
+      assert.equal(selectListView.getItemForElement(false), undefined)
+      assert.equal(selectListView.getItemForElement(document.createElement('li')), undefined)
+    })
+
+    it('does not throw exception when it does not have any items', async () => {
+      const selectListView = new SelectListView({
+        items: [],
+        elementForItem: createElementForItem,
+      })
+      assert.doesNotThrow(() => selectListView.getItemForElement(document.createElement("li")))
+    })
+  })
+
   it('changing and selecting the query', async () => {
     let selectListView = new SelectListView({
       itemsClassList: [], items: [],
