@@ -1,7 +1,7 @@
 const {Disposable, CompositeDisposable, TextEditor} = require('atom')
 const etch = require('etch')
 const $ = etch.dom
-const fuzzaldrin = require('fuzzaldrin')
+const fuzzaldrin = require('fuzzaldrin-plus')
 
 module.exports = class SelectListView {
   static setScheduler (scheduler) {
