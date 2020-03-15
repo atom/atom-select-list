@@ -3,6 +3,9 @@
   "version": "0.7.2",
   "description": "A general-purpose select list for use in Atom packages",
   "main": "./src/select-list-view.js",
+  "files": [
+    "lib/**/*"
+  ],
   "scripts": {
     "test": "atom --test test"
   },
@@ -10,15 +13,33 @@
   "license": "MIT",
   "atomTestRunner": "atom-mocha-test-runner",
   "devDependencies": {
-    "atom-mocha-test-runner": "^0.3.0",
-    "sinon": "^2.1.0"
+    "atom-mocha-test-runner": "^1.2.0",
+    "sinon": "^9.0.2",
+    "typescript": "^3.8.3",
+    "@types/atom": "^1.40.2",
+    "@types/fuzzaldrin": "^2.1.2",
+    "eslint": "latest",
+    "@typescript-eslint/eslint-plugin": "latest",
+    "@typescript-eslint/parser": "latest",
+    "babel-eslint": "latest",
+    "eslint-plugin-json": "latest",
+    "eslint-plugin-only-warn": "latest",
+    "prettier": "latest",
+    "tslint": "latest",
+    "tslint-config-prettier": "latest"
   },
   "dependencies": {
-    "etch": "^0.12.6",
+    "etch": "^0.14.0",
     "fuzzaldrin": "^2.1.0"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/atom/atom-select-list.git"
+  },
+  "prettier": {
+    "printWidth": 120,
+    "semi": false,
+    "tabWidth": 2,
+    "singleQuote": true
   }
 }
