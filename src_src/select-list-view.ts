@@ -1,9 +1,101 @@
 const etch = require('etch')
-import {Disposable, CompositeDisposable, TextEditor} from 'atom'
+import {Disposable, CompositeDisposable, TextEditor } from 'atom'
 const $ = etch.dom
 import fuzzaldrin from 'fuzzaldrin'
 
+declare interface SelectListProperties {
+
+  // an array containing the objects you want to show in the select list.
+  items: Array<object | string>
+
+  // a function that is called whenever an item needs to be displayed.
+  //
+  // `options: { selected: boolean, index: number, visible: boolean }`
+  //
+  // - `selected`: indicating whether item is selected or not.
+  // - `index`: item's index.
+  // - `visible`: indicating whether item is visible in viewport or not. Unless initiallyVisibleItemCount was given, this value is always true.
+  elementForItem: (item: object | string, options: { selected: boolean, index: number, visible: boolean }) => HTMLElement // TODO: HTMLElement
+
+  // (Optional) the number of maximum items that are shown.
+  maxResults?: number
+
+  // (Optional) a function that allows to decide which items to show whenever the query changes. By default, it uses fuzzaldrin to filter results.
+  filter?: (items: Array<object | string>, query: string) => Array<object>
+
+  // (Optional) when filter is not provided, this function will be called to retrieve a string property on each item and that will be used to filter them.
+  filterKeyForItem?: (item: object | string) => string
+
+  // (Optional) a function that allows to apply a transformation to the user query and whose return value will be used to filter items.
+  filterQuery?: (query: string) => string
+
+  // (Optional) a string that will replace the contents of the query editor.
+  query?: string
+
+  // (Optional)  a boolean indicating whether the query text should be selected or not.
+  selectQuery?: boolean
+
+  // (Optional)  a function that allows to change the order in which items are shown.
+  order?: (item1: object | string, item2: object | string) => number
+
+  // (Optional) a string shown when the list is empty.
+  emptyMessage?: string
+
+  // (Optional) a string that needs to be set when you want to notify the user that an error occurred.
+  errorMessage?: string
+
+  // (Optional) a string that needs to be set when you want to provide some information to the user.
+  infoMessage?: string
+
+  // (Optional) a string that needs to be set when you are loading items in the background.
+  loadingMessage?: string
+
+  // (Optional) a string or number that needs to be set when the progress status changes (e.g. a percentage showing how many items have been loaded so far).
+  loadingBadge?: string | number
+
+  // (Optional) an array of strings that will be added as class names to the items element.
+  itemsClassList?: Array<string>
+
+  // (Optional) the index of the item to initially select and automatically select after query changes; defaults to 0.
+  initialSelectionIndex?: number
+
+  // (Optional) a function that is called when the query changes.
+  didChangeQuery?: (query: string) => void
+
+  // (Optional) a function that is called when the selected item changes.
+  didChangeSelection?: (item: object | string) => void
+
+  // (Optional) a function that is called when the user clicks or presses Enter on an item.
+  didConfirmSelection?: (item: object | string) => void
+
+  // (Optional) a function that is called when the user presses Enter but the list is empty.
+  didConfirmEmptySelection?: () => void
+
+  // (Optional) a function that is called when the user presses Esc or the list loses focus.
+  didCancelSelection?: () => void
+
+  // (Optional) When this options was provided, SelectList observe visibility of items in viewport, visibility state is passed as visible option to elementForItem. This is mainly used to skip heavy computation for invisible items.
+  initiallyVisibleItemCount?: number
+
+  skipCommandsRegistration: boolean
+}
+
 module.exports = class SelectListView {
+
+  // When creating a new instance of a select list, or when calling `update` on an existing one, you can supply an object with the typeof SelectListProperties
+  props: SelectListProperties
+
+  // an array containing the objects you want to show in the select list.
+  items: Array<object| string>  // TODO: Added initializer! Either fix this.items or assign it in constructor
+
+  private disposables: CompositeDisposable
+  private element: EtchElement
+  private didClickItemsList: boolean
+  private visibilityObserver: IntersectionObserver
+  private listItems: any[] | null
+  private selectionIndex: number | undefined
+  private refs: any;
+
   static setScheduler (scheduler) {
     etch.setScheduler(scheduler)
   }
@@ -12,7 +104,7 @@ module.exports = class SelectListView {
     return etch.getScheduler()
   }
 
-  constructor (props) {
+  constructor (props: SelectListProperties) {
     this.props = props
     if (!this.props.hasOwnProperty('initialSelectionIndex')) {
       this.props.initialSelectionIndex = 0
@@ -112,7 +204,9 @@ module.exports = class SelectListView {
     })
   }
 
-  update (props = {}) {
+  update (props: SelectListProperties = {}) {
+    // TODO: default value {}
+
     let shouldComputeItems = false
 
     if (props.hasOwnProperty('items')) {
@@ -384,7 +478,7 @@ module.exports = class SelectListView {
     }
   }
 
-  selectItem (item) {
+  selectItem (item: object | string) {
     const index = this.items.indexOf(item)
     if (index === -1) {
       throw new Error('Cannot select the specified item because it does not exist.')
@@ -414,10 +508,10 @@ module.exports = class SelectListView {
 }
 
 class ListItemView {
-	public selected: any;
-	public onclick: any;
-	public element: any;
-	public domEventsDisposable: any;
+  public element: EtchElement
+  public selected: boolean
+  public onclick: () => void
+  public domEventsDisposable: Disposable
 
   constructor (props) {
     this.mouseDown = this.mouseDown.bind(this)
