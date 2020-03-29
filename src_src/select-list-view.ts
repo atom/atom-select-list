@@ -409,7 +409,7 @@ module.exports = class SelectListView {
       const scoredItems = []
       for (const item of items) {
         const string = this.props.filterKeyForItem ? this.props.filterKeyForItem(item) : item
-        let score = fuzzaldrin.score(string, query)
+        const score = fuzzaldrin.score(string, query)
         if (score > 0) {
           scoredItems.push({item, score})
         }
