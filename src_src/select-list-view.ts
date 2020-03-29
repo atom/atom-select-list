@@ -1,3 +1,5 @@
+// TODO: fix redundant returns in methods
+
 const etch = require('etch')
 import {Disposable, CompositeDisposable, TextEditor } from 'atom'
 const $ = etch.dom
