@@ -1,7 +1,7 @@
 // TODO: fix redundant returns in methods
 
 const etch = require('etch')
-import {Disposable, CompositeDisposable, TextEditor } from 'atom'
+import {Disposable, CompositeDisposable, TextEditor, CommandEvent } from 'atom'
 const $ = etch.dom
 import fuzzaldrin from 'fuzzaldrin'
 
@@ -184,27 +184,27 @@ module.exports = class SelectListView {
 
   registerAtomCommands () {
     return atom.commands.add(this.element, {
-      'core:move-up': (event) => {
+      'core:move-up': (event: CommandEvent) => {
         this.selectPrevious()
         event.stopPropagation()
       },
-      'core:move-down': (event) => {
+      'core:move-down': (event: CommandEvent) => {
         this.selectNext()
         event.stopPropagation()
       },
-      'core:move-to-top': (event) => {
+      'core:move-to-top': (event: CommandEvent) => {
         this.selectFirst()
         event.stopPropagation()
       },
-      'core:move-to-bottom': (event) => {
+      'core:move-to-bottom': (event: CommandEvent) => {
         this.selectLast()
         event.stopPropagation()
       },
-      'core:confirm': (event) => {
+      'core:confirm': (event: CommandEvent) => {
         this.confirmSelection()
         event.stopPropagation()
       },
-      'core:cancel': (event) => {
+      'core:cancel': (event: CommandEvent) => {
         this.cancelSelection()
         event.stopPropagation()
       }
