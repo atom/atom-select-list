@@ -520,7 +520,7 @@ class ListItemView {
   public onclick: () => void
   public domEventsDisposable: Disposable
 
-  constructor (props) {
+  constructor (props: { element: EtchElement ; selected: boolean; onclick: () => void } ) {
     this.mouseDown = this.mouseDown.bind(this)
     this.mouseUp = this.mouseUp.bind(this)
     this.didClick = this.didClick.bind(this)
@@ -559,7 +559,7 @@ class ListItemView {
     this.domEventsDisposable.dispose()
   }
 
-  update (props) {
+  update (props: { element: EtchElement ; selected: boolean; onclick: () => void }) {
     this.element.removeEventListener('mousedown', this.mouseDown)
     this.element.removeEventListener('mouseup', this.mouseUp)
     this.element.removeEventListener('click', this.didClick)
