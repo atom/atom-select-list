@@ -3,6 +3,9 @@ import {Disposable, CompositeDisposable, TextEditor } from 'atom'
 const $ = etch.dom
 import fuzzaldrin from 'fuzzaldrin'
 
+// TODO: etch types
+type EtchElement = HTMLElement
+
 declare interface SelectListProperties {
 
   // an array containing the objects you want to show in the select list.
@@ -15,7 +18,7 @@ declare interface SelectListProperties {
   // - `selected`: indicating whether item is selected or not.
   // - `index`: item's index.
   // - `visible`: indicating whether item is visible in viewport or not. Unless initiallyVisibleItemCount was given, this value is always true.
-  elementForItem: (item: object | string, options: { selected: boolean, index: number, visible: boolean }) => HTMLElement // TODO: HTMLElement
+  elementForItem: (item: object | string, options: { selected: boolean, index: number, visible: boolean }) => EtchElement // TODO: HTMLElement
 
   // (Optional) the number of maximum items that are shown.
   maxResults?: number
