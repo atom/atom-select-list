@@ -402,7 +402,7 @@ module.exports = class SelectListView {
     this.selectIndex(this.props.initialSelectionIndex, updateComponent)
   }
 
-  fuzzyFilter (items, query?) {
+  fuzzyFilter (items: Array<object | string>, query?: string) {
     if (query.length === 0) {
       return items
     } else {
