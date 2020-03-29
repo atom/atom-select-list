@@ -111,6 +111,8 @@ module.exports = class SelectListView {
 
   constructor (props: SelectListProperties) {
     this.props = props
+    this.items = props.items // TODO: Added initializer! Either fix this.items or assign it in constructor
+    
     if (!this.props.hasOwnProperty('initialSelectionIndex')) {
       this.props.initialSelectionIndex = 0
     }
