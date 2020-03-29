@@ -387,7 +387,7 @@ module.exports = class SelectListView {
     this.confirmSelection()
   }
 
-  computeItems (updateComponent?) {
+  computeItems (updateComponent?: boolean) {
     this.listItems = null
     if (this.visibilityObserver) this.visibilityObserver.disconnect()
     const filterFn = this.props.filter || this.fuzzyFilter.bind(this)
