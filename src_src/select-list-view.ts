@@ -1,7 +1,7 @@
-const {Disposable, CompositeDisposable, TextEditor} = require('atom')
 const etch = require('etch')
+import {Disposable, CompositeDisposable, TextEditor} from 'atom'
 const $ = etch.dom
-const fuzzaldrin = require('fuzzaldrin')
+import fuzzaldrin from 'fuzzaldrin'
 
 module.exports = class SelectListView {
   static setScheduler (scheduler) {
