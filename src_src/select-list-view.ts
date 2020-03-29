@@ -382,7 +382,7 @@ module.exports = class SelectListView {
     this.computeItems()
   }
 
-  didClickItem (itemIndex) {
+  didClickItem (itemIndex: number) {
     this.selectIndex(itemIndex)
     this.confirmSelection()
   }
@@ -424,7 +424,7 @@ module.exports = class SelectListView {
     return this.items[this.selectionIndex]
   }
 
-  renderItemAtIndex (index) {
+  renderItemAtIndex (index: number) {
     const item = this.items[index]
     const selected = this.getSelectedItem() === item
     const component = this.listItems[index].component
@@ -458,7 +458,7 @@ module.exports = class SelectListView {
     return this.selectIndex(undefined)
   }
 
-  selectIndex (index, updateComponent = true) {
+  selectIndex (index: number, updateComponent = true) {
     if (index >= this.items.length) {
       index = 0
     } else if (index < 0) {
