@@ -541,15 +541,15 @@ class ListItemView {
     etch.getScheduler().updateDocument(this.scrollIntoViewIfNeeded.bind(this))
   }
 
-  mouseDown (event) {
+  mouseDown (event: MouseEvent) {
     event.preventDefault()
   }
 
-  mouseUp (event) {
+  mouseUp (event: MouseEvent) {
     event.preventDefault()
   }
 
-  didClick (event) {
+  didClick (event: MouseEvent) {
     event.preventDefault()
     this.onclick()
   }
