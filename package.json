@@ -7,6 +7,11 @@
     "lib/**/*"
   ],
   "scripts": {
+    "typescript": "tsc -p ./src_src/tsconfig.json || echo 'tsc is done'",
+    "prettier_src": "prettier --write ./src_src/**/*.ts",
+    "prettier_out": "prettier --write ./src/**/*.js",
+    "build": "npm run typescript -s & npm run prettier_out -s",
+    "lint": "eslint . --ext js,ts,json",
     "test": "atom --test test"
   },
   "author": "",
