@@ -32,7 +32,7 @@
     // "importHelpers": true, // if true you should add tslib to deps
     // "skipLibCheck": false,
 
-    "outDir": "../src/"
+    "outDir": "../lib/"
   },
   "compileOnSave": false
 }

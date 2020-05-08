@@ -2,17 +2,18 @@
   "name": "atom-select-list",
   "version": "0.7.2",
   "description": "A general-purpose select list for use in Atom packages",
-  "main": "./src/select-list-view.js",
+  "main": "lib/select-list-view.js",
   "files": [
     "lib/**/*"
   ],
   "scripts": {
-    "typescript": "tsc -p ./src_src/tsconfig.json || echo 'tsc is done'",
-    "prettier_src": "prettier --write ./src_src/**/*.ts",
-    "prettier_out": "prettier --write ./src/**/*.js",
-    "build": "npm run typescript -s & npm run prettier_out -s",
+    "typescript": "tsc -p src/tsconfig.json || echo 'tsc is done'",
+    "prettier_src": "prettier --write src/*.ts",
+    "prettier_out": "prettier --write lib/*.js",
+    "build": "npm run typescript -s",
     "lint": "eslint . --ext js,ts,json",
-    "test": "atom --test test"
+    "test": "atom --test test",
+    "prepare": "npm run build"
   },
   "author": "",
   "license": "MIT",
