@@ -286,7 +286,7 @@ module.exports = class SelectListView {
     this.confirmSelection()
   }
 
-  computeItems (updateComponent) {
+  computeItems (updateComponent?) {
     this.listItems = null
     if (this.visibilityObserver) this.visibilityObserver.disconnect()
     const filterFn = this.props.filter || this.fuzzyFilter.bind(this)
@@ -301,7 +301,7 @@ module.exports = class SelectListView {
     this.selectIndex(this.props.initialSelectionIndex, updateComponent)
   }
 
-  fuzzyFilter (items, query) {
+  fuzzyFilter (items, query?) {
     if (query.length === 0) {
       return items
     } else {
@@ -414,6 +414,11 @@ module.exports = class SelectListView {
 }
 
 class ListItemView {
+	public selected: any;
+	public onclick: any;
+	public element: any;
+	public domEventsDisposable: any;
+
   constructor (props) {
     this.mouseDown = this.mouseDown.bind(this)
     this.mouseUp = this.mouseUp.bind(this)
