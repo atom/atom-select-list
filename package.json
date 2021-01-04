@@ -8,10 +8,7 @@
   ],
   "scripts": {
     "typescript": "tsc -p src/tsconfig.json || echo 'tsc is done'",
-    "prettier_src": "prettier --write src/*.ts",
-    "prettier_out": "prettier --write lib/*.js",
     "build": "npm run typescript -s",
-    "lint": "eslint . --ext js,ts,json",
     "test": "atom --test test",
     "prepare": "npm run build"
   },
@@ -23,16 +20,7 @@
     "sinon": "^9.0.2",
     "typescript": "^3.8.3",
     "@types/atom": "^1.40.2",
-    "@types/fuzzaldrin": "^2.1.2",
-    "eslint": "latest",
-    "@typescript-eslint/eslint-plugin": "latest",
-    "@typescript-eslint/parser": "latest",
-    "babel-eslint": "latest",
-    "eslint-plugin-json": "latest",
-    "eslint-plugin-only-warn": "latest",
-    "prettier": "latest",
-    "tslint": "latest",
-    "tslint-config-prettier": "latest"
+    "@types/fuzzaldrin": "^2.1.2"
   },
   "dependencies": {
     "etch": "^0.14.0",
@@ -41,11 +29,5 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/atom/atom-select-list.git"
-  },
-  "prettier": {
-    "printWidth": 120,
-    "semi": false,
-    "tabWidth": 2,
-    "singleQuote": true
   }
 }
