@@ -9,23 +9,21 @@
     "noImplicitThis": false,
     "noFallthroughCasesInSwitch": false,
     "declaration": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
     "incremental": true,
     "sourceMap": true,
-    "inlineSourceMap": false,
     "inlineSources": true,
-    "preserveSymlinks": true,
-    "removeComments": true,
+    "removeComments": false,
     "jsx": "react",
+    "jsxFactory": "etch.dom",
     "lib": ["ES2018", "dom"],
     "target": "ES2018",
     "allowJs": true,
     "esModuleInterop": true,
     "module": "commonjs",
     "moduleResolution": "node",
-    "importHelpers": false,
-    "outDir": "../lib"
+    "outDir": "lib"
   },
-  "compileOnSave": false
+  "include": [
+    "src"
+  ]
 }

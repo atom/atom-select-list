@@ -7,7 +7,7 @@
     "lib/**/*"
   ],
   "scripts": {
-    "typescript": "tsc -p src/tsconfig.json",
+    "typescript": "tsc -p ./tsconfig.json",
     "build": "npm run typescript",
     "test": "atom --test test",
     "prepare": "npm run build"
