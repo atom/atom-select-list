@@ -136,39 +136,39 @@ export default class SelectListView {
     })
   }
 
-  update (props: SelectListProperties = {}) {
+  update (props: SelectListProperties | {} = {}) {
     /** TODO: default value {} */
 
     let shouldComputeItems = false
 
-    if (props.hasOwnProperty('items')) {
+    if ('items' in props) {
       this.props.items = props.items
       shouldComputeItems = true
     }
 
-    if (props.hasOwnProperty('maxResults')) {
+    if ('maxResults' in props) {
       this.props.maxResults = props.maxResults
       shouldComputeItems = true
     }
 
-    if (props.hasOwnProperty('filter')) {
+    if ('filter' in props) {
       this.props.filter = props.filter
       shouldComputeItems = true
     }
 
-    if (props.hasOwnProperty('filterQuery')) {
+    if ('filterQuery' in props) {
       this.props.filterQuery = props.filterQuery
       shouldComputeItems = true
     }
 
-    if (props.hasOwnProperty('query')) {
+    if ('query' in props) {
       // Items will be recomputed as part of the change event handler, so we
       // don't need to recompute them again at the end of this function.
       this.refs.queryEditor.setText(props.query)
       shouldComputeItems = false
     }
 
-    if (props.hasOwnProperty('selectQuery')) {
+    if ('selectQuery' in props) {
       if (props.selectQuery) {
         this.refs.queryEditor.selectAll()
       } else {
@@ -176,35 +176,35 @@ export default class SelectListView {
       }
     }
 
-    if (props.hasOwnProperty('order')) {
+    if ('order' in props) {
       this.props.order = props.order
     }
 
-    if (props.hasOwnProperty('emptyMessage')) {
+    if ('emptyMessage' in props) {
       this.props.emptyMessage = props.emptyMessage
     }
 
-    if (props.hasOwnProperty('errorMessage')) {
+    if ('errorMessage' in props) {
       this.props.errorMessage = props.errorMessage
     }
 
-    if (props.hasOwnProperty('infoMessage')) {
+    if ('infoMessage' in props) {
       this.props.infoMessage = props.infoMessage
     }
 
-    if (props.hasOwnProperty('loadingMessage')) {
+    if ('loadingMessage' in props) {
       this.props.loadingMessage = props.loadingMessage
     }
 
-    if (props.hasOwnProperty('loadingBadge')) {
+    if ('loadingBadge' in props) {
       this.props.loadingBadge = props.loadingBadge
     }
 
-    if (props.hasOwnProperty('itemsClassList')) {
+    if ('itemsClassList' in props) {
       this.props.itemsClassList = props.itemsClassList
     }
 
-    if (props.hasOwnProperty('initialSelectionIndex')) {
+    if ('initialSelectionIndex' in props) {
       this.props.initialSelectionIndex = props.initialSelectionIndex
     }
 
