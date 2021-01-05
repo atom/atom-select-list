@@ -28,7 +28,7 @@ export default class SelectListView {
     etch.setScheduler(scheduler)
   }
 
-  static getScheduler (scheduler) {
+  static getScheduler () {
     return etch.getScheduler()
   }
 
