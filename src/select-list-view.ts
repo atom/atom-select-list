@@ -11,7 +11,8 @@ export type EtchElement = HTMLElement
 import { SelectListProperties } from './select-list-properties'
 
 export default class SelectListView {
-  /** When creating a new instance of a select list, or when calling `update` on an existing one, you can supply an object with the typeof SelectListProperties */
+  /** When creating a new instance of a select list, or when calling `update` on an existing one,
+  you can supply an object with the typeof SelectListProperties */
   props: SelectListProperties
 
   /** an array containing the objects you want to show in the select list. */
