@@ -1,7 +1,5 @@
-// TODO: fix redundant returns in methods
-
-const etch = require('etch')
 import { Disposable, CompositeDisposable, TextEditor, CommandEvent } from 'atom'
+import etch from 'etch'
 const $ = etch.dom
 import fuzzaldrin from 'fuzzaldrin'
 
