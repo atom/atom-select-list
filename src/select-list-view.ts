@@ -9,7 +9,7 @@ type EtchScheduler = any
 
 import { SelectListProperties } from './select-list-properties'
 
-export default class SelectListView {
+module.exports = class SelectListView {
   /** When creating a new instance of a select list, or when calling `update` on an existing one,
   you can supply an object with the typeof SelectListProperties */
   props: SelectListProperties
