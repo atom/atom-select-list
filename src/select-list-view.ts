@@ -440,13 +440,15 @@ export default class SelectListView {
   }
 }
 
+type ListItemViewProps = { element: EtchElement ; selected: boolean; onclick: () => void }
+
 class ListItemView {
   public element: EtchElement
   public selected: boolean
   public onclick: () => void
   public domEventsDisposable: Disposable
 
-  constructor (props: { element: EtchElement ; selected: boolean; onclick: () => void } ) {
+  constructor (props:  ListItemViewProps) {
     this.mouseDown = this.mouseDown.bind(this)
     this.mouseUp = this.mouseUp.bind(this)
     this.didClick = this.didClick.bind(this)
@@ -485,7 +487,7 @@ class ListItemView {
     this.domEventsDisposable.dispose()
   }
 
-  update (props: { element: EtchElement ; selected: boolean; onclick: () => void }) {
+  update (props: ListItemViewProps) {
     this.element.removeEventListener('mousedown', this.mouseDown)
     this.element.removeEventListener('mouseup', this.mouseUp)
     this.element.removeEventListener('click', this.didClick)
