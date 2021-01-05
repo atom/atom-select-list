@@ -232,7 +232,7 @@ export default class SelectListView {
 
       if (this.visibilityObserver) {
         etch.getScheduler().updateDocument(() => {
-          Array.from(this.refs.items.children).slice(this.props.initiallyVisibleItemCount).forEach(element => {
+          Array.from(this.refs.items.children).slice(this.props.initiallyVisibleItemCount).forEach((element: any) => {
             this.visibilityObserver.observe(element)
           })
         })
@@ -316,6 +316,7 @@ export default class SelectListView {
     this.listItems = null
     if (this.visibilityObserver) this.visibilityObserver.disconnect()
     const filterFn = this.props.filter || this.fuzzyFilter.bind(this)
+    // @ts-ignore fuzzaldrin types should be fixed
     this.items = filterFn(this.props.items.slice(), this.getFilterQuery())
     if (this.props.order) {
       this.items.sort(this.props.order)
@@ -327,7 +328,7 @@ export default class SelectListView {
     this.selectIndex(this.props.initialSelectionIndex, updateComponent)
   }
 
-  fuzzyFilter (items: Array<object | string>, query?: string) {
+  fuzzyFilter (items: Array<string>, query?: string) {
     if (query.length === 0) {
       return items
     } else {
