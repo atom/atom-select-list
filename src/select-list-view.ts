@@ -1,10 +1,11 @@
 import { Disposable, CompositeDisposable, TextEditor, CommandEvent } from 'atom'
+// @ts-ignore Merge https://github.com/atom/etch/pull/90
 import etch from 'etch'
 const $ = etch.dom
 import fuzzaldrin from 'fuzzaldrin'
 
-// TODO: etch types
 export type EtchElement = HTMLElement
+type EtchScheduler = any
 
 import { SelectListProperties } from './select-list-properties'
 
@@ -24,7 +25,7 @@ export default class SelectListView {
   private selectionIndex: number | undefined
   private refs: any;
 
-  static setScheduler (scheduler) {
+  static setScheduler (scheduler: EtchScheduler) {
     etch.setScheduler(scheduler)
   }
 
@@ -87,7 +88,7 @@ export default class SelectListView {
     this.refs.queryEditor.element.focus()
   }
 
-  didLoseFocus (event) {
+  didLoseFocus (event: {relatedTarget: Node}) {
     if (this.didClickItemsList || this.element.contains(event.relatedTarget)) {
       this.didClickItemsList = false
       this.refs.queryEditor.element.focus()
