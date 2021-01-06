@@ -55,7 +55,6 @@ module.exports = class SelectListView {
     const didLoseFocus = this.didLoseFocus.bind(this)
     editorElement.addEventListener('blur', didLoseFocus)
 
-
     // When clicking the scrollbar of the items list, a blur event will be triggered
     // on the query editor element, but we don't want to treat that as a cancellation.
     // This mousedown listener allows us to detect this case and restore focus to the
