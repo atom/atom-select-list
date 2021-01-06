@@ -15,7 +15,7 @@ module.exports = class SelectListView {
   props: SelectListProperties
 
   /** an array containing the objects you want to show in the select list. */
-  items: Array<object | string> // TODO: Added initializer! Either fix this.items or assign it in constructor
+  private items: Array<object | string>
 
   private disposables: CompositeDisposable
   private element: EtchElement
@@ -35,7 +35,7 @@ module.exports = class SelectListView {
 
   constructor (props: SelectListProperties) {
     this.props = props
-    this.items = props.items // TODO: Added initializer! Either fix this.items or assign it in constructor
+    this.items = props.items
 
     if (!this.props.hasOwnProperty('initialSelectionIndex')) {
       this.props.initialSelectionIndex = 0
