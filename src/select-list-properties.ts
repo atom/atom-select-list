@@ -84,5 +84,5 @@ export interface SelectListProperties {
   passed as visible option to elementForItem. This is mainly used to skip heavy computation for invisible items. */
   initiallyVisibleItemCount?: number
 
-  skipCommandsRegistration: boolean
+  skipCommandsRegistration?: boolean
 }
