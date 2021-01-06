@@ -507,7 +507,7 @@ class ListItemView {
 
   scrollIntoViewIfNeeded () {
     if (this.selected) {
-      this.element.scrollIntoView(false)
+      this.element.scrollIntoViewIfNeeded(false)
     }
   }
 }
