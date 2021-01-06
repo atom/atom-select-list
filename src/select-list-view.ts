@@ -507,6 +507,7 @@ class ListItemView {
 
   scrollIntoViewIfNeeded () {
     if (this.selected) {
+      // @ts-ignore: this function is a non-standard API.
       this.element.scrollIntoViewIfNeeded(false)
     }
   }
