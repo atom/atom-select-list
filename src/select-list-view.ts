@@ -134,9 +134,7 @@ module.exports = class SelectListView {
     })
   }
 
-  update (props: SelectListProperties | {} = {}) {
-    /** TODO: default value {} */
-
+  update (props: SelectListProperties) {
     let shouldComputeItems = false
 
     if ('items' in props) {
