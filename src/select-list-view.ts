@@ -71,9 +71,9 @@ module.exports = class SelectListView {
     this.visibilityObserver = new IntersectionObserver(changes => {
       for (const change of changes) {
         if (change.intersectionRatio > 0) {
-          const element = change.target
+          const element = change.target as EtchElement
           this.visibilityObserver.unobserve(element)
-          const index = Array.from(this.refs.items.children).indexOf(element)
+          const index = Array.from(this.refs.items.children as EtchElement[]).indexOf(element)
           if (index >= 0) {
             this.renderItemAtIndex(index)
           }
@@ -230,7 +230,7 @@ module.exports = class SelectListView {
 
       if (this.visibilityObserver) {
         etch.getScheduler().updateDocument(() => {
-          Array.from(this.refs.items.children).slice(this.props.initiallyVisibleItemCount).forEach((element: any) => {
+          Array.from(this.refs.items.children as EtchElement[]).slice(this.props.initiallyVisibleItemCount).forEach((element) => {
             this.visibilityObserver.observe(element)
           })
         })
