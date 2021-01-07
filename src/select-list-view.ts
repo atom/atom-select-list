@@ -14,7 +14,7 @@ module.exports = class SelectListView {
   you can supply an object with the typeof SelectListProperties */
   props: SelectListProperties
 
-  /** an array containing the objects you want to show in the select list. */
+  /** An array containing the filtered and ordered items to be shown in the select list. */
   private items: Array<object | string>
 
   private disposables: CompositeDisposable
