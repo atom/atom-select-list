@@ -35,7 +35,6 @@ module.exports = class SelectListView {
 
   constructor (props: SelectListProperties) {
     this.props = props
-
     if (!this.props.hasOwnProperty('initialSelectionIndex')) {
       this.props.initialSelectionIndex = 0
     }
