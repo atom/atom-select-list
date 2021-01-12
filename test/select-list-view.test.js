@@ -4,7 +4,7 @@ const assert = require('assert')
 const etch = require('etch')
 const sinon = require('sinon')
 const sandbox = sinon.sandbox.create()
-const SelectListView = require('../src/select-list-view')
+const SelectListView = require('../lib/select-list-view')
 
 describe('SelectListView', () => {
   let containerNode = null

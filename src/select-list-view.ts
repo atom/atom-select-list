@@ -1,18 +1,39 @@
-const {Disposable, CompositeDisposable, TextEditor} = require('atom')
-const etch = require('etch')
+import { Disposable, CompositeDisposable, TextEditor, CommandEvent } from 'atom'
+// @ts-ignore Merge https://github.com/atom/etch/pull/90
+import etch from 'etch'
 const $ = etch.dom
-const fuzzaldrin = require('fuzzaldrin')
+import fuzzaldrin from 'fuzzaldrin'
+
+export type EtchElement = HTMLElement
+type EtchScheduler = any
+
+import { SelectListProperties } from './select-list-properties'
 
 module.exports = class SelectListView {
-  static setScheduler (scheduler) {
+  /** When creating a new instance of a select list, or when calling `update` on an existing one,
+  you can supply an object with the typeof SelectListProperties */
+  props: SelectListProperties
+
+  /** An array containing the filtered and ordered items to be shown in the select list. */
+  private items: Array<object | string>
+
+  private disposables: CompositeDisposable
+  private element: EtchElement
+  private didClickItemsList: boolean
+  private visibilityObserver: IntersectionObserver
+  private listItems: any[] | null
+  private selectionIndex: number | undefined
+  private refs: any;
+
+  static setScheduler (scheduler: EtchScheduler) {
     etch.setScheduler(scheduler)
   }
 
-  static getScheduler (scheduler) {
+  static getScheduler () {
     return etch.getScheduler()
   }
 
-  constructor (props) {
+  constructor (props: SelectListProperties) {
     this.props = props
     if (!this.props.hasOwnProperty('initialSelectionIndex')) {
       this.props.initialSelectionIndex = 0
@@ -49,9 +70,9 @@ module.exports = class SelectListView {
     this.visibilityObserver = new IntersectionObserver(changes => {
       for (const change of changes) {
         if (change.intersectionRatio > 0) {
-          const element = change.target
+          const element = change.target as EtchElement
           this.visibilityObserver.unobserve(element)
-          const index = Array.from(this.refs.items.children).indexOf(element)
+          const index = Array.from(this.refs.items.children as EtchElement[]).indexOf(element)
           if (index >= 0) {
             this.renderItemAtIndex(index)
           }
@@ -64,7 +85,7 @@ module.exports = class SelectListView {
     this.refs.queryEditor.element.focus()
   }
 
-  didLoseFocus (event) {
+  didLoseFocus (event: {relatedTarget: Node}) {
     if (this.didClickItemsList || this.element.contains(event.relatedTarget)) {
       this.didClickItemsList = false
       this.refs.queryEditor.element.focus()
@@ -84,65 +105,65 @@ module.exports = class SelectListView {
   }
 
   registerAtomCommands () {
-    return global.atom.commands.add(this.element, {
-      'core:move-up': (event) => {
+    return atom.commands.add(this.element, {
+      'core:move-up': (event: CommandEvent) => {
         this.selectPrevious()
         event.stopPropagation()
       },
-      'core:move-down': (event) => {
+      'core:move-down': (event: CommandEvent) => {
         this.selectNext()
         event.stopPropagation()
       },
-      'core:move-to-top': (event) => {
+      'core:move-to-top': (event: CommandEvent) => {
         this.selectFirst()
         event.stopPropagation()
       },
-      'core:move-to-bottom': (event) => {
+      'core:move-to-bottom': (event: CommandEvent) => {
         this.selectLast()
         event.stopPropagation()
       },
-      'core:confirm': (event) => {
+      'core:confirm': (event: CommandEvent) => {
         this.confirmSelection()
         event.stopPropagation()
       },
-      'core:cancel': (event) => {
+      'core:cancel': (event: CommandEvent) => {
         this.cancelSelection()
         event.stopPropagation()
       }
     })
   }
 
-  update (props = {}) {
+  update (props: SelectListProperties) {
     let shouldComputeItems = false
 
-    if (props.hasOwnProperty('items')) {
+    if ('items' in props) {
       this.props.items = props.items
       shouldComputeItems = true
     }
 
-    if (props.hasOwnProperty('maxResults')) {
+    if ('maxResults' in props) {
       this.props.maxResults = props.maxResults
       shouldComputeItems = true
     }
 
-    if (props.hasOwnProperty('filter')) {
+    if ('filter' in props) {
       this.props.filter = props.filter
       shouldComputeItems = true
     }
 
-    if (props.hasOwnProperty('filterQuery')) {
+    if ('filterQuery' in props) {
       this.props.filterQuery = props.filterQuery
       shouldComputeItems = true
     }
 
-    if (props.hasOwnProperty('query')) {
+    if ('query' in props) {
       // Items will be recomputed as part of the change event handler, so we
       // don't need to recompute them again at the end of this function.
       this.refs.queryEditor.setText(props.query)
       shouldComputeItems = false
     }
 
-    if (props.hasOwnProperty('selectQuery')) {
+    if ('selectQuery' in props) {
       if (props.selectQuery) {
         this.refs.queryEditor.selectAll()
       } else {
@@ -150,35 +171,35 @@ module.exports = class SelectListView {
       }
     }
 
-    if (props.hasOwnProperty('order')) {
+    if ('order' in props) {
       this.props.order = props.order
     }
 
-    if (props.hasOwnProperty('emptyMessage')) {
+    if ('emptyMessage' in props) {
       this.props.emptyMessage = props.emptyMessage
     }
 
-    if (props.hasOwnProperty('errorMessage')) {
+    if ('errorMessage' in props) {
       this.props.errorMessage = props.errorMessage
     }
 
-    if (props.hasOwnProperty('infoMessage')) {
+    if ('infoMessage' in props) {
       this.props.infoMessage = props.infoMessage
     }
 
-    if (props.hasOwnProperty('loadingMessage')) {
+    if ('loadingMessage' in props) {
       this.props.loadingMessage = props.loadingMessage
     }
 
-    if (props.hasOwnProperty('loadingBadge')) {
+    if ('loadingBadge' in props) {
       this.props.loadingBadge = props.loadingBadge
     }
 
-    if (props.hasOwnProperty('itemsClassList')) {
+    if ('itemsClassList' in props) {
       this.props.itemsClassList = props.itemsClassList
     }
 
-    if (props.hasOwnProperty('initialSelectionIndex')) {
+    if ('initialSelectionIndex' in props) {
       this.props.initialSelectionIndex = props.initialSelectionIndex
     }
 
@@ -206,7 +227,7 @@ module.exports = class SelectListView {
 
       if (this.visibilityObserver) {
         etch.getScheduler().updateDocument(() => {
-          Array.from(this.refs.items.children).slice(this.props.initiallyVisibleItemCount).forEach(element => {
+          Array.from(this.refs.items.children as EtchElement[]).slice(this.props.initiallyVisibleItemCount).forEach((element) => {
             this.visibilityObserver.observe(element)
           })
         })
@@ -281,15 +302,16 @@ module.exports = class SelectListView {
     this.computeItems()
   }
 
-  didClickItem (itemIndex) {
+  didClickItem (itemIndex: number) {
     this.selectIndex(itemIndex)
     this.confirmSelection()
   }
 
-  computeItems (updateComponent) {
+  computeItems (updateComponent?: boolean) {
     this.listItems = null
     if (this.visibilityObserver) this.visibilityObserver.disconnect()
     const filterFn = this.props.filter || this.fuzzyFilter.bind(this)
+    // @ts-ignore fuzzaldrin types should be fixed
     this.items = filterFn(this.props.items.slice(), this.getFilterQuery())
     if (this.props.order) {
       this.items.sort(this.props.order)
@@ -301,14 +323,14 @@ module.exports = class SelectListView {
     this.selectIndex(this.props.initialSelectionIndex, updateComponent)
   }
 
-  fuzzyFilter (items, query) {
+  fuzzyFilter (items: Array<string>, query?: string) {
     if (query.length === 0) {
       return items
     } else {
       const scoredItems = []
       for (const item of items) {
         const string = this.props.filterKeyForItem ? this.props.filterKeyForItem(item) : item
-        let score = fuzzaldrin.score(string, query)
+        const score = fuzzaldrin.score(string, query)
         if (score > 0) {
           scoredItems.push({item, score})
         }
@@ -323,7 +345,7 @@ module.exports = class SelectListView {
     return this.items[this.selectionIndex]
   }
 
-  renderItemAtIndex (index) {
+  renderItemAtIndex (index: number) {
     const item = this.items[index]
     const selected = this.getSelectedItem() === item
     const component = this.listItems[index].component
@@ -357,7 +379,7 @@ module.exports = class SelectListView {
     return this.selectIndex(undefined)
   }
 
-  selectIndex (index, updateComponent = true) {
+  selectIndex (index: number, updateComponent = true) {
     if (index >= this.items.length) {
       index = 0
     } else if (index < 0) {
@@ -384,7 +406,7 @@ module.exports = class SelectListView {
     }
   }
 
-  selectItem (item) {
+  selectItem (item: object | string) {
     const index = this.items.indexOf(item)
     if (index === -1) {
       throw new Error('Cannot select the specified item because it does not exist.')
@@ -413,8 +435,15 @@ module.exports = class SelectListView {
   }
 }
 
+type ListItemViewProps = { element: EtchElement ; selected: boolean; onclick: () => void }
+
 class ListItemView {
-  constructor (props) {
+  public element: EtchElement
+  public selected: boolean
+  public onclick: () => void
+  public domEventsDisposable: Disposable
+
+  constructor (props:  ListItemViewProps) {
     this.mouseDown = this.mouseDown.bind(this)
     this.mouseUp = this.mouseUp.bind(this)
     this.didClick = this.didClick.bind(this)
@@ -435,15 +464,15 @@ class ListItemView {
     etch.getScheduler().updateDocument(this.scrollIntoViewIfNeeded.bind(this))
   }
 
-  mouseDown (event) {
+  mouseDown (event: MouseEvent) {
     event.preventDefault()
   }
 
-  mouseUp (event) {
+  mouseUp (event: MouseEvent) {
     event.preventDefault()
   }
 
-  didClick (event) {
+  didClick (event: MouseEvent) {
     event.preventDefault()
     this.onclick()
   }
@@ -453,7 +482,7 @@ class ListItemView {
     this.domEventsDisposable.dispose()
   }
 
-  update (props) {
+  update (props: ListItemViewProps) {
     this.element.removeEventListener('mousedown', this.mouseDown)
     this.element.removeEventListener('mouseup', this.mouseUp)
     this.element.removeEventListener('click', this.didClick)
@@ -474,6 +503,7 @@ class ListItemView {
 
   scrollIntoViewIfNeeded () {
     if (this.selected) {
+      // @ts-ignore: this function is a non-standard API.
       this.element.scrollIntoViewIfNeeded(false)
     }
   }

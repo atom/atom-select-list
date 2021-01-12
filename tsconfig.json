@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "strictNullChecks": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "declaration": true,
+    "incremental": true,
+    "sourceMap": true,
+    "inlineSources": true,
+    "removeComments": false,
+    "jsx": "react",
+    "jsxFactory": "etch.dom",
+    "lib": ["ES2018", "dom"],
+    "target": "ES2018",
+    "allowJs": true,
+    "esModuleInterop": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "outDir": "lib"
+  },
+  "include": [
+    "src"
+  ]
+}
