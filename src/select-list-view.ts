@@ -8,8 +8,9 @@ export type EtchElement = HTMLElement
 type EtchScheduler = any
 
 import { SelectListProperties } from './select-list-properties'
+export type { SelectListProperties } from './select-list-properties'
 
-module.exports = class SelectListView {
+export default class SelectListView {
   /** When creating a new instance of a select list, or when calling `update` on an existing one,
   you can supply an object with the typeof SelectListProperties */
   props: SelectListProperties
@@ -434,6 +435,8 @@ module.exports = class SelectListView {
     }
   }
 }
+// cjs export for backward compatibility
+module.exports = SelectListView
 
 type ListItemViewProps = { element: EtchElement ; selected: boolean; onclick: () => void }
 
