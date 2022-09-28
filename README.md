@@ -1,4 +1,5 @@
-# atom-select-list
+##### Atom and all repositories under Atom will be archived on December 15, 2022. Learn more in our [official announcement](https://github.blog/2022-06-08-sunsetting-atom/)
+ # atom-select-list
 
 This module is an [etch component](https://github.com/atom/etch) that can be used in Atom packages to show a select list with fuzzy filtering, keyboard/mouse navigation and other cool features.
 
