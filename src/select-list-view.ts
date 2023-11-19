@@ -19,7 +19,7 @@ export default class SelectListView {
   private items: Array<object | string>
 
   private disposables: CompositeDisposable
-  private element: EtchElement
+  public element: EtchElement
   private didClickItemsList: boolean
   private visibilityObserver: IntersectionObserver
   private listItems: any[] | null
